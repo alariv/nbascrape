@@ -1,7 +1,7 @@
 .App {
-  text-align: center;
-  background-color: #a0aaa6;
+  background-color: #c7d1cd;
   padding-left: 40px;
+  padding-right: 40px;
   min-height: 100vh;
 }
 
@@ -22,8 +22,11 @@
   align-items: flex-start;
   justify-content: start;
   font-size: calc(10px + 2vmin);
-  color: white;
-  padding-top: 40px;
+  color: white
+}
+
+h3 {
+  margin-top: 10px;
 }
 
 .App-link {

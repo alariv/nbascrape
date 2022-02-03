@@ -13,11 +13,11 @@ function App() {
 
     return (
         <div className="App">
-        <AppBar color='transparent'>
-            <Toolbar>
-            <Button variant="text" onClick={() => {navigate("/")}}>Teams</Button>
-            <Button variant="text" color='secondary' onClick={() => {navigate("/debt")}}>Depth charts</Button>
-            <Button variant="text" color='success' onClick={() => {navigate("/matchup")}}>Match Ups</Button>
+        <AppBar color='transparent' sx={{alignItems: 'center'}}>
+            <Toolbar >
+                <Button variant="text" onClick={() => {navigate("/")}}>Teams</Button>
+                <Button variant="text" color='secondary' onClick={() => {navigate("/debt")}}>Depth charts</Button>
+                <Button variant="text" color='success' onClick={() => {navigate("/matchup")}}>Match Ups</Button>
             </Toolbar>
         </AppBar>
         
