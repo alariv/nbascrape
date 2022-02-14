@@ -1,5 +1,5 @@
 .App {
-  background-color: #c7d1cd;
+  background-color: #dee5e2;
   padding-left: 40px;
   padding-right: 40px;
   min-height: 100vh;
@@ -22,7 +22,37 @@
   align-items: flex-start;
   justify-content: start;
   font-size: calc(10px + 2vmin);
-  color: white
+  color: rgb(0, 128, 128);
+}
+
+.dense .MuiSelect-select {
+  padding: 8px !important;
+  min-width: 30px;
+}
+
+.dense .MuiInputBase-input {
+  padding: 8px !important;
+  min-width: 30px;
+}
+
+.narrow .MuiInputBase-input {
+  max-width: 30px;
+}
+
+.css-11xur9t-MuiPaper-root-MuiTableContainer-root {
+  background-color: #eff4f2 !important;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+svg.MuiSelect-icon {
+  display: none;
+}
+
+.statsTable {
+  margin-top: 20px;
 }
 
 h3 {
@@ -31,6 +61,24 @@ h3 {
 
 .App-link {
   color: #61dafb;
+}
+
+.tableHead {
+  background-color: #b0b9b5;
+  padding-bottom: 10px;
+}
+.tableHeading {
+  border-right: 1px solid green;
+  height: 100%;
+  padding: 2px 5px;
+}
+.tableBody {
+  background-color: #bec6c3;
+}
+.tableCell {
+  border-right: 1px solid green;
+  height: 100%;
+  padding: 2px 5px;
 }
 
 @keyframes App-logo-spin {

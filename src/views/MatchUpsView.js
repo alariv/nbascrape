@@ -8,11 +8,9 @@ export default function MatchUps () {
                     MatchUps
                 </h3>
             </header>
-            <content>
-                <div>
-                    content
-                </div>
-            </content>
+            <div>
+                content
+            </div>
         </>
     )
 
