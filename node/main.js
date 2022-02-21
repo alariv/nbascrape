@@ -3,6 +3,7 @@ import http from 'http'
 import cors from 'cors'
 import cheerio from 'cheerio'
 import request from 'request'
+import fs from 'fs'
 import {getTeams} from './getTeams.js'
 import {getPlayers} from './getPlayers.js'
 
@@ -30,7 +31,14 @@ app.get('/updateTeamsData', async (req, res) => {
     getTeams(teamsHtml).then(teams => {
       getPlayers(playersHtml, teams).then(teamsWithPlayers => {
         teams = teamsWithPlayers
-        res.send(teams)
+        fs.writeFile('../src/scrapedData/teams.json', JSON.stringify(teams), function (err, data) {
+          if (!err) {
+            return console.log('succesfully wrote file')
+          } else {
+            return console.log(err)
+          }
+        })
+        res.send({status: 'FETCHED'})
       })
     })
   } catch (err) {

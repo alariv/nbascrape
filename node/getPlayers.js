@@ -5,7 +5,7 @@ export async function getPlayers(url, teams) {
   console.log(`getting ${Object.keys(teams).length} teams players`)
   let counter = 0
   return new Promise(resolve => {
-    Object.keys(teams).map(team => {
+    Object.keys(teams).map((team, idx) => {
       request(
         {
           method: 'GET',
@@ -24,6 +24,7 @@ export async function getPlayers(url, teams) {
           let players = {}
           $(links).each(function (i, link) {
             // console.log($(link).text() + ':\n  ' + $(link).attr('href'))
+            if (i > 20) return
             players[$(link).text()] = {
               link: $(link).attr('href')
             }

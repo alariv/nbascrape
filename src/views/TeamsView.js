@@ -1,16 +1,19 @@
 import React, {useEffect, useState} from 'react'
 import {InputLabel, Select, MenuItem, FormControl, Grid, Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody} from '@mui/material'
 import TeamPlayerRow from '../components/TeamPlayerRow'
-import teams from '../scrapedData/teams.json'
+import teamsString from '../scrapedData/teams.json'
 
 export default function Teams() {
   const [loading, setLoading] = useState(false)
   const [playersLoading, setPlayersLoading] = useState(false)
   const [selectedTeam, setTeam] = useState('')
-  const [defaultSeason, setDefaultSeason] = useState(new Date().getFullYear() + '')
+  const [defaultSeason, setDefaultSeason] = useState('21/22')
   const tableHeadingStyle = {fontWeight: '600'}
+  const [opponent, setOpponent] = useState('')
+  const [selectedMarket, setSelectedMarket] = useState('')
 
   const [teamPlayers, setTeamPlayers] = useState([])
+  const [teams, setTeams] = useState({})
 
   const tableColumns = [
     selectedTeam,
@@ -28,16 +31,32 @@ export default function Teams() {
     'Unit size'
   ]
 
+  useEffect(() => {
+    // setTeams(JSON.parse(teamsString))
+    console.log(teamsString)
+    setTeams(teamsString)
+  }, [])
+
   const handleTeamSelect = team => {
     setTeam(team)
     setPlayersLoading(true)
     let teamPlayersArr = []
     Object.keys(teams[team].players).map(player => {
-      console.log(player)
+      // console.log(player)
       teamPlayersArr.push(player)
     })
     setTeamPlayers(teamPlayersArr)
     setPlayersLoading(false)
+  }
+
+  const handleOpponentSelect = opponent => {
+    console.log('default opponent selected:', opponent)
+    setOpponent(opponent)
+  }
+
+  const handleMarketSelect = market => {
+    console.log('default market selected:', market)
+    setSelectedMarket(market)
   }
 
   const handleDefaultSeaonChange = season => {
@@ -84,10 +103,24 @@ export default function Teams() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TeamPlayerRow index={9999} filtersOnly onSeasonChange={handleDefaultSeaonChange} />
+                <TeamPlayerRow
+                  index={9999}
+                  filtersOnly
+                  onSeasonChange={handleDefaultSeaonChange}
+                  onOpponentSelect={handleOpponentSelect}
+                  onMarketSelect={handleMarketSelect}
+                  opponent={opponent}
+                />
 
                 {teamPlayers.map((player, idx) => (
-                  <TeamPlayerRow team={selectedTeam} player={player} index={idx} teams={teams} defaultSeason={defaultSeason ?? ''} />
+                  <TeamPlayerRow
+                    team={selectedTeam}
+                    player={player}
+                    index={idx}
+                    defaultSeason={defaultSeason ?? ''}
+                    opponent={opponent}
+                    selectedMarket={selectedMarket}
+                  />
                 ))}
               </TableBody>
             </Table>

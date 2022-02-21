@@ -1,5 +1,5 @@
 .App {
-  background-color: #dee5e2;
+  background-color: #b5d2c6b0;
   padding-left: 40px;
   padding-right: 40px;
   min-height: 100vh;
@@ -23,6 +23,7 @@
   justify-content: start;
   font-size: calc(10px + 2vmin);
   color: rgb(0, 128, 128);
+  padding-top: 60px;
 }
 
 .dense .MuiSelect-select {
