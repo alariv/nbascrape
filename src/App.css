@@ -26,21 +26,24 @@
   padding-top: 60px;
 }
 
-.dense .MuiSelect-select {
-  padding: 8px !important;
+.dense .MuiSelect-select,
+.dense .MuiInputBase-input {
   min-width: 30px;
 }
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected {
+  background-color: rgb(25 210 82 / 30%) !important;
+}
 
-.dense .MuiInputBase-input {
-  padding: 8px !important;
-  min-width: 30px;
+.dense.wide input {
+  min-width: 75px;
 }
 
 .narrow .MuiInputBase-input {
   max-width: 30px;
 }
 
-.css-11xur9t-MuiPaper-root-MuiTableContainer-root {
+.css-11xur9t-MuiPaper-root-MuiTableContainer-root,
+.css-mhc70k-MuiGrid-root {
   background-color: #eff4f2 !important;
 }
 
@@ -53,7 +56,11 @@ svg.MuiSelect-icon {
 }
 
 .statsTable {
-  margin-top: 20px;
+  margin-top: 20px !important;
+}
+
+.depth.statsTable {
+  max-width: max-content;
 }
 
 h3 {
@@ -80,6 +87,27 @@ h3 {
   border-right: 1px solid green;
   height: 100%;
   padding: 2px 5px;
+}
+
+.css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled
+  .MuiOutlinedInput-notchedOutline {
+  border-color: transparent !important;
+  background-color: #8080800d;
+}
+
+.MuiSelect-select,
+.MuiOutlinedInput-input {
+  height: 20px !important;
+  min-height: 10px !important;
+  padding: 3px 8px !important;
+}
+
+.MuiTableCell-root {
+  padding: 3px 10px !important;
+}
+
+.MuiTableRow-root:hover {
+  background-color: #dfe9e5;
 }
 
 @keyframes App-logo-spin {

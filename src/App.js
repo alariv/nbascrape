@@ -1,85 +1,106 @@
-import logo from './logo.svg'
-import React, {useEffect, useState} from 'react'
-import {Routes, Route, useNavigate} from 'react-router-dom'
-import './App.css'
-import {AppBar} from '@mui/material'
-import {Toolbar} from '@mui/material'
-import {Button} from '@mui/material'
-import Teams from './views/TeamsView'
-import DeptCharts from './views/DeptChartsView'
-import MatchUps from './views/MatchUpsView'
-import Stack from '@mui/material/Stack'
-import CircularProgress from '@mui/material/CircularProgress'
-import LinearProgress from '@mui/material/LinearProgress'
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import './App.css';
+import { AppBar } from '@mui/material';
+import { Toolbar } from '@mui/material';
+import { Button } from '@mui/material';
+import Teams from './views/TeamsView';
+import DeptCharts from './views/DeptChartsView';
+import Stack from '@mui/material/Stack';
+import LinearProgress from '@mui/material/LinearProgress';
+import Sync from '@mui/icons-material/Sync';
 
 function App() {
-  const navigate = useNavigate()
-  const [dataLoading, setDataLoading] = useState(true)
+  const navigate = useNavigate();
+  const [dataLoading, setDataLoading] = useState(false);
 
-  useEffect(() => {
+  const updateData = () => {
+    setDataLoading(true);
     fetch('http://localhost:3001/updateTeamsData')
-      .then(response => response.json())
-      .then(data => {
-        console.log('fetched new data')
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('new data fetched');
+        window.localStorage.setItem(
+          'teamsDataUpdated',
+          new Date().getTime().toString()
+        );
       })
       .finally(() => {
-        setDataLoading(false)
+        setDataLoading(false);
       })
-      .catch(err => {
-        console.log(err)
-      })
-  }, [])
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    const lastUpdate = parseInt(
+      window.localStorage.getItem('teamsDataUpdated')
+    );
+    if ((new Date().getTime() - lastUpdate) / 1000 / 60 / 60 > 3) {
+      console.log(
+        'FETCHING DATA. Time from last update:',
+        ((new Date().getTime() - lastUpdate) / 1000 / 60 / 60).toFixed(2),
+        'hours'
+      );
+      updateData();
+    } else {
+      console.log(
+        'Time from last fetch:',
+        ((new Date().getTime() - lastUpdate) / 1000 / 60 / 60).toFixed(2),
+        'hours'
+      );
+    }
+  }, []);
 
   return (
-    <div className="App">
-      <AppBar color="transparent" sx={{alignItems: 'center', backdropFilter: 'blur(10px) brightness(70%)'}}>
+    <div className='App'>
+      <AppBar
+        color='transparent'
+        sx={{
+          alignItems: 'center',
+          backdropFilter: 'blur(10px) brightness(70%)'
+        }}>
         <Toolbar>
           <Button
-            variant="text"
-            sx={{fontWeight: 600, margin: '0 20px'}}
+            variant='text'
+            sx={{ fontWeight: 600, margin: '0 20px' }}
             onClick={() => {
-              navigate('/')
-            }}
-          >
+              navigate('/');
+            }}>
             Teams
           </Button>
           <Button
-            variant="text"
-            color="secondary"
-            sx={{fontWeight: 600, margin: '0 20px'}}
+            variant='text'
+            color='secondary'
+            sx={{ fontWeight: 600, margin: '0 20px' }}
             onClick={() => {
-              navigate('/debt')
-            }}
-          >
+              navigate('/debt');
+            }}>
             Depth charts
           </Button>
           <Button
-            variant="text"
-            color="success"
-            sx={{fontWeight: 600, margin: '0 20px'}}
             onClick={() => {
-              navigate('/matchup')
+              updateData();
             }}
-          >
-            Match Ups
+            style={{ position: 'fixed', right: '10px' }}>
+            <Sync color='action' />
           </Button>
         </Toolbar>
         {dataLoading && (
-          <Stack sx={{color: 'grey.500', width: '100%'}}>
-            {/* <CircularProgress color="success" /> */}
-
-            <LinearProgress color="success" />
+          <Stack sx={{ color: 'grey.500', width: '100%' }}>
+            <LinearProgress color='success' />
           </Stack>
         )}
       </AppBar>
 
       <Routes>
-        <Route path="/" element={<Teams />} />
-        <Route path="/debt" element={<DeptCharts />} />
-        <Route path="/matchup" element={<MatchUps />} />
+        <Route path='/' element={<Teams />} />
+        <Route path='/debt' element={<DeptCharts />} />
+        {/* <Route path="/matchup" element={<MatchUps />} /> */}
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

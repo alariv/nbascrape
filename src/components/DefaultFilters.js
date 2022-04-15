@@ -1,61 +1,125 @@
-import logo from '../logo.svg'
-import React, {useState} from 'react'
-import {styled} from '@mui/material/styles'
-import Paper from '@mui/material/Paper'
-import {InputLabel, Select, MenuItem, FormControl, Grid, TableRow, TableCell, TextField} from '@mui/material'
-import SelectionList from './SelectionList'
-import teams from '../scrapedData/teams.json'
+import React, { useEffect, useState } from 'react';
+import { TableRow, TableCell } from '@mui/material';
+import SelectionList from './SelectionList';
+import teams from '../scrapedData/teams.json';
+import SelectionListMultiple from './SelectionListMultiple';
+import Input from './Input';
 
-export default function TeamPlayerRow({seasons, markets, onSeasonChange, onTeamChange, onMarketChange}) {
-  const [opponent, setOpponent] = useState('')
-  const [market, setMarket] = useState('')
-  const [season, setSeason] = useState('21/22')
-  const [team, setTeam] = useState('')
+export default function TeamPlayerRow({
+  seasons,
+  markets,
+  onSeasonChange,
+  onTeamChange,
+  onMarketChange,
+  onPredMinutesChange,
+  currentTeam
+}) {
+  const [opponent, setOpponent] = useState('');
+  const [market, setMarket] = useState('');
+  const [season, setSeason] = useState(['21/22']);
+  const [predMinutes, setPredMinutes] = useState('');
+  const [team, setTeam] = useState('');
+  const [opponents, setOpponents] = useState([]);
 
-  const handleOpponentSelect = team => {
-    setOpponent(team)
+  function makeOpponentsList() {
+    let list = [];
+    // console.log(currentTeam)
+    Object.keys(teams).forEach((thisTeam) => {
+      if (currentTeam !== thisTeam) {
+        list.push(thisTeam);
+      }
+    });
+    // console.log('made list')
+    // console.log(list)
+    setOpponents(list);
   }
 
-  const handleMarketSelect = market => {
-    setMarket(market)
-    onMarketChange(market)
-  }
+  useEffect(() => {
+    makeOpponentsList();
+  }, []);
 
-  const handleSeasonSelect = season => {
-    setSeason(season)
-    onSeasonChange(season)
-  }
+  useEffect(() => {
+    makeOpponentsList();
+  }, [currentTeam]);
 
-  const handleTeamSelect = team => {
-    setTeam(team)
-    onTeamChange(team)
-  }
+  const handleOpponentSelect = (team) => {
+    setOpponent(team);
+  };
+
+  const handleMarketSelect = (market) => {
+    setMarket(market);
+    onMarketChange(market);
+  };
+
+  const handleSeasonSelect = (season) => {
+    // console.log('seaon in deffilters:', season)
+    setSeason(season);
+    onSeasonChange(season);
+  };
+
+  const handlePredMinutesChange = (predMinutes) => {
+    // console.log('pred minutes in deffilters:', predMinutes)
+    setPredMinutes(predMinutes);
+    onPredMinutesChange(predMinutes);
+  };
+
+  const handleTeamSelect = (team) => {
+    setTeam(team);
+    onTeamChange(team);
+  };
 
   return (
-    <TableRow sx={{'&:last-child td, &:last-child th': {border: 0}, backgroundColor: 'rgba(0, 128, 128,.15)'}}>
-      <TableCell component="th" scope="row"></TableCell>
+    <TableRow
+      sx={{
+        '&:last-child td, &:last-child th': { border: 0 },
+        backgroundColor: 'rgba(0, 128, 128,.15)'
+      }}>
+      <TableCell component='th' scope='row'></TableCell>
       <TableCell>
-        <SelectionList value={team} onChange={handleTeamSelect} list={Object.keys(teams)} dense />
+        <SelectionList
+          value={team}
+          onChange={handleTeamSelect}
+          list={opponents}
+          dense
+        />
       </TableCell>
       <TableCell>
-        <SelectionList value={market} onChange={handleMarketSelect} list={markets} dense />
+        <SelectionList
+          value={market}
+          onChange={handleMarketSelect}
+          list={markets}
+          dense
+        />
       </TableCell>
       <TableCell></TableCell>
       <TableCell>
-        <SelectionList value={season} onChange={handleSeasonSelect} list={seasons} dense />
+        <SelectionListMultiple
+          value={season}
+          onChange={handleSeasonSelect}
+          list={seasons}
+          dense
+        />
       </TableCell>
       <TableCell>
-        <SelectionList value={season} onChange={handleSeasonSelect} list={seasons} dense />
+        <Input
+          value={predMinutes}
+          onChange={handlePredMinutesChange}
+          dense
+          narrow
+        />
       </TableCell>
       <TableCell>
-        <SelectionList value={season} onChange={handleSeasonSelect} list={seasons} dense />
+        <SelectionList value={''} onChange={() => {}} list={[]} dense />
       </TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>
+      <TableCell>
+        <SelectionList value={''} onChange={() => {}} list={[]} dense />
+      </TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>
     </TableRow>
-  )
+  );
 }

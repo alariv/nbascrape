@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "checkJs": true,
-    "jsx": "react"
-  },
-  "resolveJsonModule": true
+    "jsx": "react",
+    "resolveJsonModule": true
+  }
 }

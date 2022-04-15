@@ -1,25 +1,29 @@
-import logo from '../logo.svg'
-import React, {useState} from 'react'
-import {styled} from '@mui/material/styles'
-import Paper from '@mui/material/Paper'
-import {InputLabel, Select, MenuItem, FormControl, Grid, TableRow, TableCell} from '@mui/material'
+import React from 'react';
+import { Select, MenuItem } from '@mui/material';
 
-export default function SelectionList({value, label = '', onChange = () => {}, list = [], dense = false, disabled = false}) {
+export default function SelectionList({
+  value,
+  label = '',
+  onChange = (season) => {},
+  list = [],
+  dense = false,
+  disabled = false,
+  flex = false
+}) {
   return (
     <Select
-      className={dense ? 'dense' : ''}
+      className={dense ? 'dense' : '' + flex ? 'flex' : ''}
       value={value}
       label={label}
       disabled={disabled}
-      onChange={e => {
-        onChange(e.target.value)
-      }}
-    >
+      onChange={(e) => {
+        onChange(e.target.value);
+      }}>
       {list.map((item, idx) => (
         <MenuItem value={item} key={idx}>
           {item}
         </MenuItem>
       ))}
     </Select>
-  )
+  );
 }

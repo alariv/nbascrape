@@ -1,44 +1,64 @@
-import cheerio from 'cheerio'
-import request from 'request'
+import cheerio from 'cheerio';
+import request from 'request';
 
 export async function getPlayers(url, teams) {
-  console.log(`getting ${Object.keys(teams).length} teams players`)
-  let counter = 0
-  return new Promise(resolve => {
+  // console.log(`getting ${Object.keys(teams).length} teams players`)
+
+  let counter = 0;
+  return new Promise((resolve) => {
     Object.keys(teams).map((team, idx) => {
+      let teamShort = teams[team].link.split('/')[1];
+      // console.log(
+      //   url
+      //     .replace('{{teamShort}}', teamShort)
+      //     .replace('{{year}}', new Date().getFullYear().toString())
+      // );
+
       request(
         {
           method: 'GET',
-          url: url.replace('{{teamUrl}}', teams[team].link.slice(1))
+          url: url
+            .replace('{{teamShort}}', teamShort)
+            .replace('{{year}}', new Date().getFullYear().toString())
         },
         (err, response, body) => {
-          counter += 1
-          console.log('finished players request')
+          counter += 1;
+          // console.log('finished', team, 'players request');
           //   console.error(err)
           //   console.log(response)
-          //   console.log(body)
+          // console.log(body)
 
-          let $ = cheerio.load(body)
+          let $ = cheerio.load(body);
 
-          let links = $('#franchise_register').find('a')
-          let players = {}
-          $(links).each(function (i, link) {
-            // console.log($(link).text() + ':\n  ' + $(link).attr('href'))
-            if (i > 20) return
-            players[$(link).text()] = {
-              link: $(link).attr('href')
+          let rows = $('#roster').find('tr');
+          let players = {};
+
+          $(rows).each(function (i, row) {
+            if ($(row).find('td[data-stat=player]').text()) {
+              players[$(row).find('td[data-stat=player]').find('a').text()] = {
+                link: $(row)
+                  .find('td[data-stat=player]')
+                  .find('a')
+                  .attr('href')
+                  .substr(
+                    1,
+                    $(row).find('td[data-stat=player]').find('a').attr('href')
+                      .length
+                  ),
+                pos: $(row).find('td[data-stat=pos]').text()
+              };
             }
-          })
+          });
 
-          teams[team] = {...teams[team], players: players}
+          teams[team] = { ...teams[team], players: players };
 
-          console.log(players)
-
+          // console.log(players);
           if (counter == Object.keys(teams).length) {
-            resolve(teams)
+            // console.log(teams);
+            resolve(teams);
           }
         }
-      )
-    })
-  })
+      );
+    });
+  });
 }
