@@ -1,0 +1,1 @@
+cmd.exe /c "cd node/ && node server.js"

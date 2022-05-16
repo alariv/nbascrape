@@ -1,0 +1,1 @@
+cmd.exe /c "npm install && npm run start"

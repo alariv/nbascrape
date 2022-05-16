@@ -271,7 +271,8 @@ export default function TeamPlayerRow({
   };
 
   useEffect(() => {
-    let depthData = JSON.parse(window.localStorage.getItem('depthData'));
+    let depthData = JSON.parse(window.localStorage.getItem('depthData')) || null;
+    !!depthData &&( 
     Object.keys(depthData[team]).forEach((pos) => {
       // console.log(pos);
       Object.keys(depthData[team][pos]).forEach((positionClass) => {
@@ -279,7 +280,7 @@ export default function TeamPlayerRow({
           setPredMinutes(depthData[team][pos][positionClass].value);
         }
       });
-    });
+    }))
   }, []);
 
   useEffect(() => {

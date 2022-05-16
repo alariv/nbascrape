@@ -4,7 +4,11 @@ import SelectionList from './SelectionList';
 import Input from './Input';
 
 export default function PositionRow({ position, players, team }) {
-  const [values, setValues] = useState({});
+  const [values, setValues] = useState({
+    a: { value: '', player: '' },
+    b: { value: '', player: '' },
+    c: { value: '', player: '' }
+  });
   const [loading, setLoading] = useState(true);
   const [teamDepthDataFromLS, setTeamDepthDataFromLS] = useState({});
 
@@ -73,7 +77,7 @@ export default function PositionRow({ position, players, team }) {
 
   return (
     <>
-      {!loading && (
+      {!loading && Object.keys(teamDepthDataFromLS).length && (
         <TableRow
           key={position}
           sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
