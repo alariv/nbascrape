@@ -5,7 +5,9 @@ export async function getPlayersStats(teams, baseUrl) {
   let counter = 0;
   return new Promise((resolve) => {
     Object.keys(teams).map((team, idx) => {
+      console.log('in getPlayerStats for team', team);
       Object.keys(teams[team].players).map((player, idx) => {
+        console.log('making request for', player);
         request(
           {
             method: 'GET',
@@ -31,18 +33,24 @@ export async function getPlayersStats(teams, baseUrl) {
                 };
               }
             });
-            teams[team][player] = {
-              ...teams[team][player],
+            teams[team].players[player] = {
+              ...teams[team].players[player],
               playerData: playerData
             };
             console.log('player:', player, playerData);
+            if (counter == Object.keys(teams[team].players).length) {
+              console.log('resolving for some reason');
+              resolve(teams);
+            } else {
+              console.log('counter ==', counter);
+              console.log(
+                'teams[team].players.length ==',
+                Object.keys(teams[team].players).length
+              );
+            }
           }
         );
       });
-      if (counter == Object.keys(teams).length) {
-        console.log('resolving for some reason');
-        resolve(teams);
-      }
     });
   });
 }

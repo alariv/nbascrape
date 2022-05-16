@@ -22,13 +22,16 @@ export default function Teams() {
   const [loading, setLoading] = useState(false);
   const [playersLoading, setPlayersLoading] = useState(false);
   const [selectedTeam, setTeam] = useState('');
-  const [defaultSeason, setDefaultSeason] = useState(['21/22']);
+  const [defaultSeason, setDefaultSeason] = useState(['2021-22']);
   const tableHeadingStyle = { fontWeight: '600' };
   const [opponent, setOpponent] = useState('');
   const [selectedMarket, setSelectedMarket] = useState('');
+  const [selectedExtraMarket, setSelectedExtraMarket] = useState('');
   const [defaultPredMinutes, setdefaultPredMinutes] = useState('');
+  const [seasonsLoading, setSeasonsLoading] = useState(false);
 
   const [teamPlayers, setTeamPlayers] = useState([]);
+  const [teamPlayersData, setTeamPlayersData] = useState({});
   const [teams, setTeams] = useState({});
 
   const tableColumns = [
@@ -55,7 +58,76 @@ export default function Teams() {
 
   useEffect(() => {
     Object.keys(teams).length && selectedTeam && handleTeamSelect(selectedTeam);
+
+    if (selectedTeam && teams) fetchPlayerSeasonsIfNeeded();
   }, [selectedTeam, teams]);
+
+  useEffect(() => {
+    console.log('teamPlayersData[selectedTeam]');
+    console.log(teamPlayersData[selectedTeam]);
+  }, [teamPlayersData, selectedTeam]);
+
+  const fetchPlayerSeasonsIfNeeded = () => {
+    setSeasonsLoading(true);
+    let teamSeasonsFetchTime =
+      JSON.parse(window.localStorage.getItem('playersSeasonsFetched')) || {};
+    if (!Object.keys(teamSeasonsFetchTime).length) teamSeasonsFetchTime = {};
+
+    console.log('teamSeasonsFetchTime', teamSeasonsFetchTime);
+    const timeDiffHours =
+      (new Date().getTime() - teamSeasonsFetchTime[selectedTeam]) /
+      1000 /
+      60 /
+      60;
+    if (
+      (selectedTeam && teamsString) ||
+      !Object.keys(teamSeasonsFetchTime).length ||
+      !teamSeasonsFetchTime[selectedTeam] ||
+      (!isNaN(timeDiffHours) && timeDiffHours > 3)
+    ) {
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(teams)
+      };
+      fetch(
+        `http://localhost:3001/updatePlayersStats/${selectedTeam}`,
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('Players seasons fetched');
+          window.localStorage.setItem(
+            'playersSeasonsFetched',
+            JSON.stringify({
+              ...teamSeasonsFetchTime,
+              [selectedTeam]: new Date().getTime().toString()
+            })
+          );
+          setTeamPlayersData({
+            [selectedTeam]: data[selectedTeam]
+          });
+          // console.log({ ...teams, [selectedTeam]: data[selectedTeam] });
+        })
+        .finally(() => {
+          setSeasonsLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      console.log(!!teamsString, !!selectedTeam);
+      console.log(Object.keys(teamSeasonsFetchTime).length);
+      console.log();
+      console.log(
+        'teamSeasons fetched ',
+        (new Date().getTime() - teamSeasonsFetchTime[selectedTeam]) /
+          1000 /
+          60 /
+          60
+      );
+    }
+  };
 
   useEffect(() => {
     // setTeams(JSON.parse(teamsString))
@@ -85,6 +157,11 @@ export default function Teams() {
   const handleMarketSelect = (market) => {
     // console.log('default market selected:', market);
     setSelectedMarket(market);
+  };
+
+  const handleExtraMarketSelect = (market) => {
+    // console.log('default market selected:', market);
+    setSelectedExtraMarket(market);
   };
 
   const handleDefaultSeaonChange = (season) => {
@@ -144,9 +221,12 @@ export default function Teams() {
                   onSeasonChange={handleDefaultSeaonChange}
                   onOpponentSelect={handleOpponentSelect}
                   onMarketSelect={handleMarketSelect}
+                  onExtraMarketSelect={handleExtraMarketSelect}
                   onPredMinutesChange={handlePredMinutesChange}
                   opponent={opponent}
                   team={selectedTeam}
+                  seasonsLoading={seasonsLoading}
+                  playerSeasons={[]}
                 />
 
                 {teamPlayers.map((player, idx) => {
@@ -160,7 +240,14 @@ export default function Teams() {
                       defaultSeason={defaultSeason ?? []}
                       opponent={opponent}
                       selectedMarket={selectedMarket}
+                      selectedExtraMarket={selectedExtraMarket}
                       defaultPredMinutes={defaultPredMinutes}
+                      seasonsLoading={seasonsLoading}
+                      playerSeasons={Object.keys(
+                        teamPlayersData[selectedTeam]?.players[player]
+                          ?.playerData || ['20-21']
+                      )}
+                      teamPlayersData={teamPlayersData[selectedTeam]}
                     />
                   );
                 })}

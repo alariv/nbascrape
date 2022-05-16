@@ -89,6 +89,13 @@ h3 {
   padding: 2px 5px;
 }
 
+.multiSelect {
+  max-width: 120px;
+}
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root {
+  min-height: 35px !important;
+}
+
 .css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled
   .MuiOutlinedInput-notchedOutline {
   border-color: transparent !important;

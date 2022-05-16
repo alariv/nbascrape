@@ -11,12 +11,15 @@ export default function TeamPlayerRow({
   onSeasonChange,
   onTeamChange,
   onMarketChange,
+  onExtraMarketChange,
   onPredMinutesChange,
-  currentTeam
+  currentTeam,
+  seasonsLoading = false
 }) {
   const [opponent, setOpponent] = useState('');
   const [market, setMarket] = useState('');
-  const [season, setSeason] = useState(['21/22']);
+  const [extraMarket, setExtraMarket] = useState('');
+  const [season, setSeason] = useState(['2021-22']);
   const [predMinutes, setPredMinutes] = useState('');
   const [team, setTeam] = useState('');
   const [opponents, setOpponents] = useState([]);
@@ -49,6 +52,11 @@ export default function TeamPlayerRow({
   const handleMarketSelect = (market) => {
     setMarket(market);
     onMarketChange(market);
+  };
+
+  const handleExtraMarketSelect = (market) => {
+    setExtraMarket(market);
+    onExtraMarketChange(market);
   };
 
   const handleSeasonSelect = (season) => {
@@ -97,25 +105,22 @@ export default function TeamPlayerRow({
           value={season}
           onChange={handleSeasonSelect}
           list={seasons}
+          disabled={seasonsLoading}
           dense
         />
       </TableCell>
+      <TableCell></TableCell>
       <TableCell>
-        <Input
-          value={predMinutes}
-          onChange={handlePredMinutesChange}
+        <SelectionList
+          value={extraMarket}
+          onChange={handleExtraMarketSelect}
+          list={markets}
           dense
-          narrow
-        />
-      </TableCell>
-      <TableCell>
-        <SelectionList value={''} onChange={() => {}} list={[]} dense />
+        />{' '}
       </TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>
-      <TableCell>
-        <SelectionList value={''} onChange={() => {}} list={[]} dense />
-      </TableCell>
+      <TableCell></TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>

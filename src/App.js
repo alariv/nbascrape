@@ -16,6 +16,7 @@ function App() {
 
   const updateData = () => {
     setDataLoading(true);
+    //updatePlayersStats/:team
     fetch('http://localhost:3001/updateTeamsData')
       .then((response) => response.json())
       .then((data) => {

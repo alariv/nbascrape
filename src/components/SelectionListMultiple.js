@@ -16,11 +16,11 @@ export default function SelectionListMultiple({
   return (
     <Select
       multiple
-      className={dense ? 'dense' : ''}
+      className={(dense ? 'dense' : '') + ' multiSelect'}
       value={value}
       label={label}
       disabled={disabled}
-      renderValue={(selected) => selected.sort().join(', ')}
+      renderValue={(selected) => selected.sort().join('\n ')}
       onChange={(e) => {
         // // console.log(value)
         onChange(e.target.value);
