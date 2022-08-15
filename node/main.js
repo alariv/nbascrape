@@ -77,7 +77,7 @@ app.get('/updateTeamsData', async (req, res) => {
             );
           })
           .finally(() => {
-            res.send('OK');
+            res.send({ status: 'OK' });
           });
       });
     });
@@ -175,7 +175,7 @@ const updateLeaguesData = () => {
 
 const updatePlayersSeasonStats = (test, teamName) => {
   console.log('updating players season stats');
-  console.log(Object.keys(test[teamName].players).length);
+  // console.log(Object.keys(test[teamName].players).length);
   return new Promise((resolve) => {
     let playerCounter = 0;
     const playersCount = Object.keys(test[teamName].players).length;
@@ -207,9 +207,9 @@ const updatePlayersSeasonStats = (test, teamName) => {
                 !requestedPlayers.includes(player) &&
                   requestedPlayers.push(player);
                 playerCounter = requestedPlayers.length;
-                console.log(
-                  `GOT player ${player} data for season ${playerSeason} from link ${test[teamName].players[player].playerData[playerSeason].link}`
-                ); //   console.error(err)
+                // console.log(
+                //   `GOT player ${player} data for season ${playerSeason} from link ${test[teamName].players[player].playerData[playerSeason].link}`
+                // ); //   console.error(err)
                 //   console.log(response)
                 // console.log(body)
                 if (!body || typeof body !== 'string') return;
@@ -246,7 +246,7 @@ const updatePlayersSeasonStats = (test, teamName) => {
                   ...test[teamName].players[player].playerData[playerSeason],
                   data: playerData
                 };
-                console.log('player:', player, playerData);
+                // console.log('player:', player, playerData);
                 if (
                   playerCounter == playersCount &&
                   seasonCounter == maxSeasons
@@ -254,8 +254,8 @@ const updatePlayersSeasonStats = (test, teamName) => {
                   console.log('resolving');
                   resolve(test);
                 } else {
-                  console.log(`playerCount ${playerCounter}/${playersCount}`);
-                  console.log(`seasonCount ${seasonCounter}`);
+                  // console.log(`playerCount ${playerCounter}/${playersCount}`);
+                  // console.log(`seasonCount ${seasonCounter}`);
                 }
               }
             );
@@ -266,8 +266,8 @@ const updatePlayersSeasonStats = (test, teamName) => {
 };
 
 const updatePlayersStats = (team, teams, res) => {
-  console.log('UPDATE PLAYERS STATS');
-  console.log('updating for', team);
+  // console.log('UPDATE PLAYERS STATS');
+  // console.log('updating for', team);
   // console.log(global.teamsWPlayers);
 
   // let teamObj = { [team]: global.teamsWPlayers[team] };

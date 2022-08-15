@@ -23,6 +23,9 @@ export default function Teams() {
   const [playersLoading, setPlayersLoading] = useState(false);
   const [selectedTeam, setTeam] = useState('');
   const [defaultSeason, setDefaultSeason] = useState(['2021-22']);
+  const [defaultMatchUpValueSeason, setDefaultMatchUpValueSeason] = useState([
+    '2021-22'
+  ]);
   const tableHeadingStyle = { fontWeight: '600' };
   const [opponent, setOpponent] = useState('');
   const [selectedMarket, setSelectedMarket] = useState('');
@@ -42,13 +45,13 @@ export default function Teams() {
     'Seasons',
     'Pred. min range',
     'Extra filtrid',
+    'Line',
     '+/- player',
     'Total games (Over/Under)',
     'Matchup value',
-    'True over %',
-    'True under %',
+    'True % (Over/Under)',
     'Bookie odds',
-    'Unit size'
+    'Unit size (Over/Under)'
   ];
 
   useEffect(() => {
@@ -168,6 +171,12 @@ export default function Teams() {
     // console.log('setting default season to:', season);
     setDefaultSeason(typeof season === 'string' ? season.split(',') : season);
   };
+  const handleMatchUpValueSeasonChange = (season) => {
+    // console.log('setting default season to:', season);
+    setDefaultMatchUpValueSeason(
+      typeof season === 'string' ? season.split(',') : season
+    );
+  };
 
   const handlePredMinutesChange = (predMinutes) => {
     // console.log('setting pred minutes to:', predMinutes);
@@ -219,6 +228,7 @@ export default function Teams() {
                   index={9999}
                   filtersOnly
                   onSeasonChange={handleDefaultSeaonChange}
+                  onMatchUpValueSeasonChange={handleMatchUpValueSeasonChange}
                   onOpponentSelect={handleOpponentSelect}
                   onMarketSelect={handleMarketSelect}
                   onExtraMarketSelect={handleExtraMarketSelect}

@@ -9,13 +9,15 @@ export default function Input({
   disabled = false,
   value = '',
   wide = false,
-  flex = false
+  flex = false,
+  onBlur = () => {}
 }) {
   return (
     <TextField
       label={label}
       value={value ?? ''}
       disabled={disabled}
+      onBlur={onBlur}
       onChange={(e) => {
         onChange(e.target.value);
       }}

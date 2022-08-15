@@ -8,7 +8,9 @@ import Input from './Input';
 export default function TeamPlayerRow({
   seasons,
   markets,
+  extraMarkets,
   onSeasonChange,
+  onMatchUpValueSeasonChange,
   onTeamChange,
   onMarketChange,
   onExtraMarketChange,
@@ -20,6 +22,7 @@ export default function TeamPlayerRow({
   const [market, setMarket] = useState('');
   const [extraMarket, setExtraMarket] = useState('');
   const [season, setSeason] = useState(['2021-22']);
+  const [matchUpValueSeason, setMatchUpValueSeason] = useState(['2021-22']);
   const [predMinutes, setPredMinutes] = useState('');
   const [team, setTeam] = useState('');
   const [opponents, setOpponents] = useState([]);
@@ -63,6 +66,12 @@ export default function TeamPlayerRow({
     // console.log('seaon in deffilters:', season)
     setSeason(season);
     onSeasonChange(season);
+  };
+
+  const handleMatchUpValueSeasonSelect = (season) => {
+    // console.log('seaon in deffilters:', season)
+    setMatchUpValueSeason(season);
+    onMatchUpValueSeasonChange(season);
   };
 
   const handlePredMinutesChange = (predMinutes) => {
@@ -114,13 +123,22 @@ export default function TeamPlayerRow({
         <SelectionList
           value={extraMarket}
           onChange={handleExtraMarketSelect}
-          list={markets}
+          list={[''].concat(extraMarkets)}
           dense
         />{' '}
       </TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>
+      <TableCell>
+        <SelectionListMultiple
+          value={matchUpValueSeason}
+          onChange={handleMatchUpValueSeasonSelect}
+          list={[...seasons.slice(0, 2)]}
+          disabled={seasonsLoading}
+          dense
+        />
+      </TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>
