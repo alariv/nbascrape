@@ -113,10 +113,21 @@ h3 {
   padding: 3px 10px !important;
 }
 
-.MuiTableRow-root:hover {
-  background-color: #dfe9e5;
+/* .market {
+  background-color: rgb(7 63 63 / 5%) !important;
+} */
+
+.market,
+.line,
+.extraFilter,
+.extraFilterLine,
+.matchupValue {
+  background-color: #c6dcd369;
 }
 
+.MuiTableRow-root:hover {
+  background-color: #d1dad6 !important;
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

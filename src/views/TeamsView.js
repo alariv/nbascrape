@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   InputLabel,
   Select,
@@ -12,25 +12,25 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  Stack
-} from '@mui/material';
-import LinearProgress from '@mui/material/LinearProgress';
-import TeamPlayerRow from '../components/TeamPlayerRow';
-import teamsString from '../scrapedData/teams.json';
+  Stack,
+} from "@mui/material";
+import LinearProgress from "@mui/material/LinearProgress";
+import TeamPlayerRow from "../components/TeamPlayerRow";
+import teamsString from "../scrapedData/teams.json";
 
 export default function Teams() {
   const [loading, setLoading] = useState(false);
   const [playersLoading, setPlayersLoading] = useState(false);
-  const [selectedTeam, setTeam] = useState('');
-  const [defaultSeason, setDefaultSeason] = useState(['2021-22']);
+  const [selectedTeam, setTeam] = useState("");
+  const [defaultSeason, setDefaultSeason] = useState(["2021-22"]);
   const [defaultMatchUpValueSeason, setDefaultMatchUpValueSeason] = useState([
-    '2021-22'
+    "2021-22",
   ]);
-  const tableHeadingStyle = { fontWeight: '600' };
-  const [opponent, setOpponent] = useState('');
-  const [selectedMarket, setSelectedMarket] = useState('');
-  const [selectedExtraMarket, setSelectedExtraMarket] = useState('');
-  const [defaultPredMinutes, setdefaultPredMinutes] = useState('');
+  const tableHeadingStyle = { fontWeight: "600" };
+  const [opponent, setOpponent] = useState("");
+  const [selectedMarket, setSelectedMarket] = useState("");
+  const [selectedExtraMarket, setSelectedExtraMarket] = useState("");
+  const [defaultPredMinutes, setdefaultPredMinutes] = useState("");
   const [seasonsLoading, setSeasonsLoading] = useState(false);
 
   const [teamPlayers, setTeamPlayers] = useState([]);
@@ -39,24 +39,24 @@ export default function Teams() {
 
   const tableColumns = [
     selectedTeam,
-    'Opponent',
-    'Market',
-    'Line',
-    'Seasons',
-    'Pred. min range',
-    'Extra filtrid',
-    'Line',
-    '+/- player',
-    'Total games (Over/Under)',
-    'Matchup value',
-    'True % (Over/Under)',
-    'Bookie odds',
-    'Unit size (Over/Under)'
+    "Opponent",
+    "Market",
+    "Line",
+    "Seasons",
+    "Pred. min range",
+    "Extra filtrid",
+    "Line",
+    "+/- player",
+    "Total games (Over/Under)",
+    "Matchup value",
+    "True % (Over/Under)",
+    "Bookie odds",
+    "Unit size (Over/Under)",
   ];
 
   useEffect(() => {
-    window.localStorage.getItem('selectedTeam') &&
-      setTeam(window.localStorage.getItem('selectedTeam'));
+    window.localStorage.getItem("selectedTeam") &&
+      setTeam(window.localStorage.getItem("selectedTeam"));
   }, []);
 
   useEffect(() => {
@@ -66,17 +66,17 @@ export default function Teams() {
   }, [selectedTeam, teams]);
 
   useEffect(() => {
-    console.log('teamPlayersData[selectedTeam]');
+    console.log("teamPlayersData[selectedTeam]");
     console.log(teamPlayersData[selectedTeam]);
   }, [teamPlayersData, selectedTeam]);
 
   const fetchPlayerSeasonsIfNeeded = () => {
     setSeasonsLoading(true);
     let teamSeasonsFetchTime =
-      JSON.parse(window.localStorage.getItem('playersSeasonsFetched')) || {};
+      JSON.parse(window.localStorage.getItem("playersSeasonsFetched")) || {};
     if (!Object.keys(teamSeasonsFetchTime).length) teamSeasonsFetchTime = {};
 
-    console.log('teamSeasonsFetchTime', teamSeasonsFetchTime);
+    console.log("teamSeasonsFetchTime", teamSeasonsFetchTime);
     const timeDiffHours =
       (new Date().getTime() - teamSeasonsFetchTime[selectedTeam]) /
       1000 /
@@ -89,9 +89,9 @@ export default function Teams() {
       (!isNaN(timeDiffHours) && timeDiffHours > 3)
     ) {
       const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(teams)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(teams),
       };
       fetch(
         `http://localhost:3001/updatePlayersStats/${selectedTeam}`,
@@ -99,16 +99,16 @@ export default function Teams() {
       )
         .then((response) => response.json())
         .then((data) => {
-          console.log('Players seasons fetched');
+          console.log("Players seasons fetched");
           window.localStorage.setItem(
-            'playersSeasonsFetched',
+            "playersSeasonsFetched",
             JSON.stringify({
               ...teamSeasonsFetchTime,
-              [selectedTeam]: new Date().getTime().toString()
+              [selectedTeam]: new Date().getTime().toString(),
             })
           );
           setTeamPlayersData({
-            [selectedTeam]: data[selectedTeam]
+            [selectedTeam]: data[selectedTeam],
           });
           // console.log({ ...teams, [selectedTeam]: data[selectedTeam] });
         })
@@ -123,7 +123,7 @@ export default function Teams() {
       console.log(Object.keys(teamSeasonsFetchTime).length);
       console.log();
       console.log(
-        'teamSeasons fetched ',
+        "teamSeasons already fetched",
         (new Date().getTime() - teamSeasonsFetchTime[selectedTeam]) /
           1000 /
           60 /
@@ -148,7 +148,7 @@ export default function Teams() {
       teamPlayersArr.push(player);
     });
     setTeamPlayers(teamPlayersArr);
-    window.localStorage.setItem('selectedTeam', team);
+    window.localStorage.setItem("selectedTeam", team);
     setPlayersLoading(false);
   };
 
@@ -169,12 +169,12 @@ export default function Teams() {
 
   const handleDefaultSeaonChange = (season) => {
     // console.log('setting default season to:', season);
-    setDefaultSeason(typeof season === 'string' ? season.split(',') : season);
+    setDefaultSeason(typeof season === "string" ? season.split(",") : season);
   };
   const handleMatchUpValueSeasonChange = (season) => {
     // console.log('setting default season to:', season);
     setDefaultMatchUpValueSeason(
-      typeof season === 'string' ? season.split(',') : season
+      typeof season === "string" ? season.split(",") : season
     );
   };
 
@@ -185,21 +185,22 @@ export default function Teams() {
 
   return (
     <>
-      <header className='App-header'>
+      <header className="App-header">
         <h3>Teams</h3>
       </header>
       {!loading && (
         <div>
-          <FormControl style={{ minWidth: '200px' }}>
-            <InputLabel id='demo-simple-select-label'>Select team</InputLabel>
+          <FormControl style={{ minWidth: "200px" }}>
+            <InputLabel id="demo-simple-select-label">Select team</InputLabel>
             <Select
-              labelId='demo-simple-select-label'
-              id='demo-simple-select'
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
               value={selectedTeam}
-              label='Select team'
+              label="Select team"
               onChange={(e) => {
                 setTeam(e.target.value);
-              }}>
+              }}
+            >
               {Object.keys(teams).map((team, idx) => (
                 <MenuItem value={team} key={idx}>
                   {team}
@@ -212,8 +213,8 @@ export default function Teams() {
 
       {selectedTeam && !loading && (
         <>
-          <TableContainer component={Paper} className='statsTable'>
-            <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+          <TableContainer component={Paper} className="statsTable">
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
                   {tableColumns.map((colHeading, idx) => (
@@ -255,7 +256,7 @@ export default function Teams() {
                       seasonsLoading={seasonsLoading}
                       playerSeasons={Object.keys(
                         teamPlayersData[selectedTeam]?.players[player]
-                          ?.playerData || ['20-21']
+                          ?.playerData || ["20-21"]
                       )}
                       teamPlayersData={teamPlayersData[selectedTeam]}
                     />

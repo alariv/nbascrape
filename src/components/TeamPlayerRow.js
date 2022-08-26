@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { TableRow, TableCell } from '@mui/material';
-import SelectionList from './SelectionList';
-import DefaultFilters from './DefaultFilters';
-import Input from './Input';
-import teams from '../scrapedData/teams.json';
-import SelectionListMultiple from './SelectionListMultiple';
-import leaguesData from '../scrapedData/leaguesData.json';
-import { Button } from '@mui/material';
-import Save from '@mui/icons-material/Save';
+import React, { useEffect, useState } from "react";
+import { TableRow, TableCell } from "@mui/material";
+import SelectionList from "./SelectionList";
+import DefaultFilters from "./DefaultFilters";
+import Input from "./Input";
+import teams from "../scrapedData/teams.json";
+import SelectionListMultiple from "./SelectionListMultiple";
+import leaguesData from "../scrapedData/leaguesData.json";
+import { Button } from "@mui/material";
+import Save from "@mui/icons-material/Save";
 
 export default function TeamPlayerRow({
-  team = '',
-  player = '',
+  team = "",
+  player = "",
   players = [],
   index,
   filtersOnly = false,
@@ -22,37 +22,37 @@ export default function TeamPlayerRow({
   onExtraMarketSelect = () => {},
   onPredMinutesChange = () => {},
   defaultSeason = [],
-  opponent = '',
-  selectedMarket = '',
-  selectedExtraMarket = '',
-  defaultPredMinutes = '',
+  opponent = "",
+  selectedMarket = "",
+  selectedExtraMarket = "",
+  defaultPredMinutes = "",
   seasonsLoading = false,
   playerSeasons,
-  teamPlayersData = {}
+  teamPlayersData = {},
 }) {
-  const [market, setMarket] = useState('');
-  const [extraMarket, setExtraMarket] = useState('');
-  const [line, setLine] = useState('');
+  const [market, setMarket] = useState("");
+  const [extraMarket, setExtraMarket] = useState("");
+  const [line, setLine] = useState("");
   const [season, setSeason] = useState([]);
-  const [predMinutes, setPredMinutes] = useState('');
-  const [extraLine, setExtraLine] = useState('');
-  const [selectedWplayer, setWplayer] = useState('');
+  const [predMinutes, setPredMinutes] = useState("");
+  const [extraLine, setExtraLine] = useState("");
+  const [selectedWplayer, setWplayer] = useState("");
   const [wPlayers, setWplayers] = useState(makeWplayersList());
-  const [calculatedMatchUpValue, setCalculatedMatchUpValue] = useState('-');
-  const [matchUpValue, setMatchUpValue] = useState('');
+  const [calculatedMatchUpValue, setCalculatedMatchUpValue] = useState("-");
+  const [matchUpValue, setMatchUpValue] = useState("");
   const [predMinutesFilter, setPredMinutesFilter] = useState({
-    filter: '+-',
-    filterValue: '10'
+    filter: "+-",
+    filterValue: "10",
   });
   const [extraLineFilter, setExtraLineFilter] = useState({
-    filter: 'over',
-    filterValue: '10'
+    filter: "over",
+    filterValue: "10",
   });
   const [totalGames, setTotalGames] = useState(0);
   const [totalOver, setTotalOver] = useState(0);
   const [totalUnder, setTotalUnder] = useState(0);
-  const [totalOverP, setTotalOverP] = useState('0');
-  const [totalUnderP, setTotalUnderP] = useState('0');
+  const [totalOverP, setTotalOverP] = useState("0");
+  const [totalUnderP, setTotalUnderP] = useState("0");
   const [bookieOdds, setBookieOdds] = useState({ under: 0, over: 0 });
   const [unitSize, setUnitSize] = useState({ under: 0, over: 0 });
 
@@ -60,23 +60,30 @@ export default function TeamPlayerRow({
     let list = [];
     players.forEach((thisPlayer) => {
       if (player !== thisPlayer) {
-        list.push('+ ' + thisPlayer);
-        list.push('- ' + thisPlayer);
+        list.push("+ " + thisPlayer);
+        list.push("- " + thisPlayer);
       }
     });
     return list;
   }
 
   useEffect(() => {
+    if (team) {
+      setWplayer("");
+      setWplayers(makeWplayersList());
+    }
+  }, [team]);
+
+  useEffect(() => {
     if (Object.keys(teamPlayersData).length) {
-      console.log('teamPlayersData.length');
+      console.log("teamPlayersData.length");
       console.log(Object.keys(teamPlayersData).length);
 
       const totalGames = findTotalGames(teamPlayersData);
       setTotalGames(Object.keys(teamPlayersData).length ? totalGames.total : 0);
       setTotalOver(Object.keys(teamPlayersData).length ? totalGames.over : 0);
       setTotalUnder(Object.keys(teamPlayersData).length ? totalGames.under : 0);
-      console.log('FOUNT TOTAL GAMES', totalGames.total);
+      console.log("FOUNT TOTAL GAMES", totalGames.total);
 
       let justcalculatedMatchupValue;
       if (
@@ -84,11 +91,11 @@ export default function TeamPlayerRow({
         leaguesData[2022][opponent][
           leagueStatsMap[market ? market : selectedMarket]
         ] &&
-        leaguesData[2022]['League Average'][
+        leaguesData[2022]["League Average"][
           leagueStatsMap[market ? market : selectedMarket]
         ]
       ) {
-        console.log('setting new calculatedMatchupValue');
+        console.log("setting new calculatedMatchupValue");
         setCalculatedMatchUpValue(
           (
             parseInt(
@@ -97,7 +104,7 @@ export default function TeamPlayerRow({
               ]
             ) /
               parseInt(
-                leaguesData[2022]['League Average'][
+                leaguesData[2022]["League Average"][
                   leagueStatsMap[market ? market : selectedMarket]
                 ]
               ) -
@@ -113,16 +120,16 @@ export default function TeamPlayerRow({
             ]
           ) /
             parseInt(
-              leaguesData[2022]['League Average'][
+              leaguesData[2022]["League Average"][
                 leagueStatsMap[market ? market : selectedMarket]
               ]
             ) -
           1
         ).toFixed(5);
       } else {
-        console.log('setting calculatedMatchupValue to -');
+        // console.log("setting calculatedMatchupValue to -");
 
-        setCalculatedMatchUpValue('-');
+        setCalculatedMatchUpValue("-");
         justcalculatedMatchupValue = 0;
       }
 
@@ -133,6 +140,24 @@ export default function TeamPlayerRow({
       const matchupValueToUse = matchUpValue
         ? parseFloat(matchUpValue)
         : justcalculatedMatchupValue;
+      //RAW OVER = (OVerite arv/Total Games)*100
+      //True Over = (OVerite arv / Total Games) * 100 + Matchup %
+      //Matchup % = (Raw under*Matchup value)*Raw Over/100
+
+      //RAW OVER = (OVerite arv / Total Games) * 100
+      //EHK        (totalGames.over / totalGames.total) * 100
+
+      //RAW UNDER = (Underite arv / Total Games) * 100=
+      //EHK        (totalGames.under / totalGames.total) * 100
+
+      //True Over = (OVerite arv / Total Games) * 100 + Matchup %
+      //EHK         ((totalGames.over / totalGames.total) * 100) + ((totalGames.under / totalGames.total) * 100 * Number(matchupValueToUse)) * ((totalGames.over / totalGames.total) * 100) / 100
+
+      //True Under = (Underite arv / Total Games) * 100 + Matchup %
+      //EHK         ((totalGames.under / totalGames.total) * 100) + ((totalGames.under / totalGames.total) * 100 * Number(matchupValueToUse)) * ((totalGames.over / totalGames.total) * 100) / 100
+
+      //Matchup % = (Raw under*Matchup value)*Raw Over/100
+      //EHK         ((totalGames.under / totalGames.total) * 100 * Number(matchupValueToUse)) * ((totalGames.over / totalGames.total) * 100) / 100
 
       const overP = (
         totalGames.over > 0
@@ -144,6 +169,7 @@ export default function TeamPlayerRow({
               100
           : 0
       ).toFixed(4);
+
       const underP = (
         totalGames.under > 0
           ? (totalGames.under / totalGames.total) * 100 +
@@ -154,6 +180,7 @@ export default function TeamPlayerRow({
               100
           : 0
       ).toFixed(4);
+
       setTotalOverP(
         (totalGames.over > 0
           ? (totalGames.over / totalGames.total) * 100 +
@@ -192,25 +219,32 @@ export default function TeamPlayerRow({
     line,
     predMinutesFilter,
     predMinutes,
+    extraLineFilter,
+    extraLine,
+    extraMarket,
+    selectedWplayer,
     market,
     selectedMarket,
-    bookieOdds
+    bookieOdds,
   ]);
 
   const findTotalGames = (list) => {
     const marketToSearch = market ? market : selectedMarket;
+    const extraMarketToSearch = extraMarket ? extraMarket : selectedExtraMarket;
     const marketMapping = {
-      '3P': 'fg3',
-      TRB: 'trb',
-      AST: 'ast',
-      STL: 'stl',
-      BLK: 'blk',
-      TOV: 'tov',
-      PTS: 'pts'
+      "3P": "fg3",
+      TRB: "trb",
+      AST: "ast",
+      STL: "stl",
+      BLK: "blk",
+      TOV: "tov",
+      PTS: "pts",
+      FGA: "fga",
+      "3PA": "3pa",
     };
-    console.log('finding total for', player);
+    console.log("finding total for", player);
     console.log(
-      'searching from',
+      "searching from",
       JSON.stringify(season.length ? season : defaultSeason),
       (season.length ? season : defaultSeason).length
     );
@@ -219,12 +253,13 @@ export default function TeamPlayerRow({
     let overGames = [];
     let underGames = [];
     if (player) {
+      // console.log("LIST:", JSON.stringify(list));
       //filtering season
       playerMatchingSeasons = Object.keys(list.players).includes(player)
         ? Object.keys(list.players[player].playerData).filter((currentSeason) =>
             (season.length ? season : defaultSeason).includes(currentSeason)
           )
-        : console.log('could not find player', player);
+        : console.log("could not find player", player);
 
       (playerMatchingSeasons || []).forEach((matchedSeason) => {
         (list.players[player]?.playerData[matchedSeason]?.data
@@ -237,30 +272,117 @@ export default function TeamPlayerRow({
         });
       });
 
+      console.log("starting to filter from games:", games.length);
+
       //filtering market + line
-      console.log(games);
-      console.log('comparing market to game value');
+      // games = games.filter((game) => {
+      //   return parseInt(game[marketMapping[marketToSearch]]) > parseInt(line);
+      // });
+
+      //filtering predictedMinutes
+
+      console.log(predMinutesFilter);
+      console.log(predMinutes);
 
       games = games.filter((game) => {
         const minValue =
-          predMinutesFilter.filter == '+-'
+          predMinutesFilter.filter == "+-"
             ? parseInt(predMinutes) - parseInt(predMinutesFilter.filterValue)
-            : predMinutesFilter.filter == 'over'
+            : predMinutesFilter.filter == "over"
             ? parseInt(predMinutes)
             : 0;
 
         const maxValue =
-          predMinutesFilter.filter == '+-'
+          predMinutesFilter.filter == "+-"
             ? parseInt(predMinutes) + parseInt(predMinutesFilter.filterValue)
-            : predMinutesFilter.filter == 'over'
+            : predMinutesFilter.filter == "over"
             ? 999
             : parseInt(predMinutes) - 1;
-        const minutesPlayed = game['mp'].split(':')[0];
+
+        console.log("minutes minVal:", minValue);
+        console.log("minutes maxVal:", maxValue);
+        const minutesPlayed = game["mp"].split(":")[0];
+        console.log("minutesPlayed in match:", minutesPlayed);
         return (
-          parseFloat(game['mp'].split(':')[0]) >= minValue &&
-          parseFloat(game['mp'].split(':')[0]) <= maxValue
+          parseFloat(minutesPlayed) >= minValue &&
+          parseFloat(minutesPlayed) <= maxValue
         );
       });
+
+      //filtering extraMarket + extraLine
+      if (
+        extraLineFilter.filter &&
+        extraLineFilter.filterValue &&
+        extraMarket
+      ) {
+        games = games.filter((game) => {
+          return extraLineFilter.filter == "over"
+            ? parseInt(game[marketMapping[extraMarketToSearch]]) >
+                parseFloat(extraLineFilter.filterValue)
+            : parseInt(game[marketMapping[extraMarketToSearch]]) <
+                parseFloat(extraLineFilter.filterValue);
+        });
+      }
+
+      console.log(games);
+
+      //filtering with/witouh player
+
+      console.log("comparing extraMarket to game value");
+      console.log("----------");
+      console.log(selectedWplayer);
+      console.log("----------");
+
+      let wwoPlayerName = selectedWplayer.substring(2, selectedWplayer.length);
+      let wwoPlayerPrefix = selectedWplayer.substring(0, 1);
+
+      let currentPlayer = "Bam Adebayo";
+      let currentSeason = "2021-22";
+
+      let wwoPlayerGameDates = [];
+      let matchingGameDates = [];
+      Object.keys(list.players).forEach((thisPlayer, index) => {
+        if (thisPlayer == wwoPlayerName) {
+          console.log("FOUND wwoPlayer MATCH @", index);
+
+          Object.keys(
+            list.players[wwoPlayerName].playerData[currentSeason].data
+          ).forEach((wwoPlayerGame) => {
+            wwoPlayerGameDates.push(
+              list.players[wwoPlayerName].playerData[currentSeason].data[
+                wwoPlayerGame
+              ].date
+            );
+          });
+
+          Object.keys(
+            list.players[player].playerData[currentSeason].data
+          ).forEach((currentPlayerGame) => {
+            wwoPlayerGameDates.includes(
+              list.players[player].playerData[currentSeason].data[
+                currentPlayerGame
+              ].date
+            )
+              ? wwoPlayerPrefix == "+" &&
+                matchingGameDates.push(
+                  list.players[player].playerData[currentSeason].data[
+                    currentPlayerGame
+                  ].date
+                )
+              : wwoPlayerPrefix == "-" &&
+                matchingGameDates.push(
+                  list.players[player].playerData[currentSeason].data[
+                    currentPlayerGame
+                  ].date
+                );
+          });
+        }
+      });
+      console.log(matchingGameDates);
+
+      games = games.filter((game) => matchingGameDates.includes(game.date));
+
+      console.log(games);
 
       overGames = games.filter((game) => {
         return (
@@ -274,33 +396,33 @@ export default function TeamPlayerRow({
       });
     }
 
-    console.log('finishing', Object.keys(games).length);
+    console.log("finishing", Object.keys(games).length);
     return {
       total: games.length,
       over: overGames.length,
-      under: underGames.length
+      under: underGames.length,
     };
   };
 
   const calculateUnitSize = (total, over, under, underP, overP) => {
     const predMinutesToSend =
-      predMinutesFilter.filter == '+-'
+      predMinutesFilter.filter == "+-"
         ? predMinutesFilter.filter +
-          ':' +
+          ":" +
           predMinutesFilter.filterValue +
-          ':' +
+          ":" +
           (predMinutes ? predMinutes : defaultPredMinutes)
         : predMinutesFilter.filter +
-          ':' +
+          ":" +
           (predMinutes ? predMinutes : defaultPredMinutes);
 
-    console.log('calculating unit size:');
+    console.log("calculating unit size:");
     // console.log('totalGames', totalGames);
     // const totalGames = findTotalGames(teamPlayersData);
 
     const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         market: market ? market : selectedMarket,
         season: season.length ? season : defaultSeason,
@@ -314,16 +436,16 @@ export default function TeamPlayerRow({
         totalOverP: overP,
         totalUnderP: underP,
         bookieOdds: bookieOdds,
-        player: player
-      })
+        player: player,
+      }),
     };
-    fetch('http://localhost:3001/calculateunitsize', requestOptions)
+    fetch("http://localhost:3001/calculateunitsize", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log('new data from calculateUnitSize');
+        console.log("new data from calculateUnitSize");
         setUnitSize({
-          under: data.unitSizeUnder.toFixed(4),
-          over: data.unitSizeOver.toFixed(4)
+          under: data.unitSizeUnder,
+          over: data.unitSizeOver,
         });
         console.log(data);
       })
@@ -337,23 +459,23 @@ export default function TeamPlayerRow({
     const seasonToSave = season.length ? season : defaultSeason;
     const extraMarketToSave = extraMarket ? extraMarket : selectedExtraMarket;
     const predMinutesToSave =
-      predMinutesFilter.filter == '+-'
+      predMinutesFilter.filter == "+-"
         ? predMinutesFilter.filter +
-          ':' +
+          ":" +
           predMinutesFilter.filterValue +
-          ':' +
+          ":" +
           (predMinutes ? predMinutes : defaultPredMinutes)
         : predMinutesFilter.filter +
-          ':' +
+          ":" +
           (predMinutes ? predMinutes : defaultPredMinutes);
 
-    console.log('saving player', player);
-    console.log('marketToSave', marketToSave);
-    console.log('line', line);
-    console.log('seasonToSave', seasonToSave);
-    console.log('predMinutes', predMinutesToSave);
-    console.log('extraMarketToSave', extraMarketToSave);
-    console.log('selectedWplayer', selectedWplayer);
+    console.log("saving player", player);
+    console.log("marketToSave", marketToSave);
+    console.log("line", line);
+    console.log("seasonToSave", seasonToSave);
+    console.log("predMinutes", predMinutesToSave);
+    console.log("extraMarketToSave", extraMarketToSave);
+    console.log("selectedWplayer", selectedWplayer);
 
     const saveObj = {
       playerName: player,
@@ -362,25 +484,25 @@ export default function TeamPlayerRow({
       season: seasonToSave,
       predMinutes: predMinutesToSave,
       extraMarket: extraMarketToSave,
-      selectedWplayer: selectedWplayer
+      selectedWplayer: selectedWplayer,
     };
 
-    const savedPlayerRows = JSON.parse(localStorage.getItem('spr')) || {};
+    const savedPlayerRows = JSON.parse(localStorage.getItem("spr")) || {};
     console.log(savedPlayerRows);
 
     const modifiedPlayerRows = savedPlayerRows
       ? {
           ...savedPlayerRows,
-          [player]: { ...savedPlayerRows[player], [marketToSave]: saveObj }
+          [player]: { ...savedPlayerRows[player], [marketToSave]: saveObj },
         }
       : { [player]: { [marketToSave]: saveObj } };
 
-    localStorage.setItem('spr', JSON.stringify(modifiedPlayerRows));
+    localStorage.setItem("spr", JSON.stringify(modifiedPlayerRows));
   };
 
   useEffect(() => {
     let depthData =
-      JSON.parse(window.localStorage.getItem('depthData')) || null;
+      JSON.parse(window.localStorage.getItem("depthData")) || null;
     !!depthData &&
       Object.keys(depthData[team]).forEach((pos) => {
         // console.log(pos);
@@ -398,11 +520,11 @@ export default function TeamPlayerRow({
       leaguesData[2022][opponent][
         leagueStatsMap[market ? market : selectedMarket]
       ] &&
-      leaguesData[2022]['League Average'][
+      leaguesData[2022]["League Average"][
         leagueStatsMap[market ? market : selectedMarket]
       ]
     ) {
-      console.log('setting new calculatedMatchupValue');
+      console.log("setting new calculatedMatchupValue");
       setCalculatedMatchUpValue(
         (
           parseInt(
@@ -411,7 +533,7 @@ export default function TeamPlayerRow({
             ]
           ) /
             parseInt(
-              leaguesData[2022]['League Average'][
+              leaguesData[2022]["League Average"][
                 leagueStatsMap[market ? market : selectedMarket]
               ]
             ) -
@@ -421,7 +543,7 @@ export default function TeamPlayerRow({
           .toString()
       );
     } else {
-      console.log('setting calculatedMatchupValue to -');
+      // console.log("setting calculatedMatchupValue to -");
       // console.log(!!opponent);
       // console.log(
       //   !!leaguesData[2022][opponent][
@@ -433,35 +555,35 @@ export default function TeamPlayerRow({
       //     leagueStatsMap[market ? market : selectedMarket]
       //   ]
       // );
-      setCalculatedMatchUpValue('-');
+      setCalculatedMatchUpValue("-");
     }
   }, [selectedMarket, market, opponent]);
 
   const markets = {
-    '3P': '3P',
-    TRB: 'TRB',
-    AST: 'AST',
-    STL: 'STL',
-    BLK: 'BLK',
-    TOV: 'TOV',
-    PTS: 'PTS'
+    "3P": "3P",
+    TRB: "TRB",
+    AST: "AST",
+    STL: "STL",
+    BLK: "BLK",
+    TOV: "TOV",
+    PTS: "PTS",
   };
 
   const extraMarkets = {
-    FGA: 'FGA',
-    '3PA': '3PA'
+    FGA: "FGA",
+    "3PA": "3PA",
   };
 
   const leagueStatsMap = {
-    '3P': '3P',
-    TRB: 'trb',
-    AST: 'ast',
-    STL: 'stl',
-    BLK: 'blk',
-    TOV: 'tov',
-    PTS: 'pts',
-    FGA: 'fg2',
-    '3PA': '3PA'
+    "3P": "3P",
+    TRB: "trb",
+    AST: "ast",
+    STL: "stl",
+    BLK: "blk",
+    TOV: "tov",
+    PTS: "pts",
+    FGA: "fg2",
+    "3PA": "3PA",
   };
 
   // useEffect(() => {
@@ -470,12 +592,12 @@ export default function TeamPlayerRow({
   // }, [defaultSeason])
 
   const seasons = [
-    '2016-17',
-    '2017-18',
-    '2018-19',
-    '2019-20',
-    '2020-21',
-    '2021-22'
+    "2016-17",
+    "2017-18",
+    "2018-19",
+    "2019-20",
+    "2020-21",
+    "2021-22",
   ];
 
   //   const handleOpponentSelect = team => {
@@ -484,23 +606,23 @@ export default function TeamPlayerRow({
 
   const handleMarketSelect = (market) => {
     setMarket(market);
-    const savedPlayerRows = JSON.parse(localStorage.getItem('spr')) || {};
+    const savedPlayerRows = JSON.parse(localStorage.getItem("spr")) || {};
 
     // console.log(savedPlayerRows[player][market]);
 
-    if (savedPlayerRows[player][market]) {
+    if (savedPlayerRows[player] && savedPlayerRows[player][market]) {
       //////////SIIN
       setExtraMarket(savedPlayerRows[player][market].extraMarket);
       setSeason(
-        typeof savedPlayerRows[player][market].season === 'string'
-          ? savedPlayerRows[player][market].season.split(',')
+        typeof savedPlayerRows[player][market].season === "string"
+          ? savedPlayerRows[player][market].season.split(",")
           : savedPlayerRows[player][market].season
       );
       setLine(savedPlayerRows[player][market].line);
-      setPredMinutes(savedPlayerRows[player][market].predMinutes.split(':')[2]);
+      setPredMinutes(savedPlayerRows[player][market].predMinutes.split(":")[2]);
       setPredMinutesFilter({
-        filter: savedPlayerRows[player][market].predMinutes.split(':')[0],
-        filterValue: savedPlayerRows[player][market].predMinutes.split(':')[1]
+        filter: savedPlayerRows[player][market].predMinutes.split(":")[0],
+        filterValue: savedPlayerRows[player][market].predMinutes.split(":")[1],
       });
       setWplayer(savedPlayerRows[player][market].selectedWplayer);
     }
@@ -510,14 +632,14 @@ export default function TeamPlayerRow({
   };
 
   const handleSeasonSelect = (season) => {
-    setSeason(typeof season === 'string' ? season.split(',') : season);
+    setSeason(typeof season === "string" ? season.split(",") : season);
   };
 
   const handleLineChange = (line) => {
     setLine(line);
   };
   const handleMatchUpValueChange = (value) => {
-    value = !value ? ' ' : value.trim();
+    value = !value ? " " : value.trim();
     setMatchUpValue(value);
   };
 
@@ -525,7 +647,7 @@ export default function TeamPlayerRow({
     setPredMinutes(predMinutes.value);
     setPredMinutesFilter({
       filter: predMinutes.filter,
-      filterValue: predMinutes.filterValue
+      filterValue: predMinutes.filterValue,
     });
   };
 
@@ -533,7 +655,7 @@ export default function TeamPlayerRow({
     setExtraLine(line.value);
     setExtraLineFilter({
       filter: line.filter,
-      filterValue: line.filterValue
+      filterValue: line.value,
     });
   };
 
@@ -542,7 +664,7 @@ export default function TeamPlayerRow({
   };
 
   const handleBookieOddsChange = (odds, direction) => {
-    console.log('odds change', odds, direction);
+    console.log("odds change", odds, direction);
     setBookieOdds({ ...bookieOdds, [direction]: odds });
   };
 
@@ -565,22 +687,24 @@ export default function TeamPlayerRow({
       ) : (
         <TableRow
           key={index}
-          sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+          sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+        >
           {/* SAVE ROW */}
-          <TableCell component='th' scope='row'>
-            <div style={{ display: 'flex' }}>
+          <TableCell component="th" scope="row" className={"player"}>
+            <div style={{ display: "flex" }}>
               <Button
                 onClick={() => {
                   savePlayer();
                 }}
-                style={{}}>
-                <Save color='action' />
+                style={{}}
+              >
+                <Save color="action" />
               </Button>
               {player}
             </div>
           </TableCell>
           {/* OPPONENT */}
-          <TableCell>
+          <TableCell className={"opponent"}>
             <SelectionList
               value={opponent}
               list={Object.keys(teams)}
@@ -589,7 +713,7 @@ export default function TeamPlayerRow({
             />
           </TableCell>
           {/* MARKET */}
-          <TableCell>
+          <TableCell className={"market"}>
             <SelectionList
               value={market ? market : selectedMarket}
               onChange={handleMarketSelect}
@@ -598,11 +722,11 @@ export default function TeamPlayerRow({
             />
           </TableCell>
           {/* LINE */}
-          <TableCell>
+          <TableCell className={"line"}>
             <Input value={line} onChange={handleLineChange} dense narrow />
           </TableCell>
           {/* SEASON */}
-          <TableCell>
+          <TableCell className={"seasons"}>
             <SelectionListMultiple
               value={season.length ? season : defaultSeason}
               onChange={handleSeasonSelect}
@@ -612,28 +736,28 @@ export default function TeamPlayerRow({
             />
           </TableCell>
           {/* PRED MINUTED RANGE */}
-          <TableCell>
-            <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <TableCell className={"predMinutes"}>
+            <div style={{ display: "flex", flexDirection: "row" }}>
               <SelectionList
                 value={predMinutesFilter.filter}
                 onChange={(value) => {
                   handlePredMinutesChange({
                     value: predMinutes ? predMinutes : defaultPredMinutes,
                     filter: value,
-                    filterValue: predMinutesFilter.filterValue
+                    filterValue: predMinutesFilter.filterValue,
                   });
                 }}
-                list={['+-', 'over', 'under']}
+                list={["+-", "over", "under"]}
                 dense
               />
-              {predMinutesFilter.filter == '+-' ? (
+              {predMinutesFilter.filter == "+-" ? (
                 <Input
                   value={predMinutesFilter.filterValue}
                   onChange={(value) => {
                     handlePredMinutesChange({
                       value: predMinutes ? predMinutes : defaultPredMinutes,
                       filter: predMinutesFilter.filter,
-                      filterValue: value
+                      filterValue: value,
                     });
                   }}
                   dense
@@ -645,21 +769,21 @@ export default function TeamPlayerRow({
                     handlePredMinutesChange({
                       value: value,
                       filter: predMinutesFilter.filter,
-                      filterValue: predMinutesFilter.filterValue
+                      filterValue: predMinutesFilter.filterValue,
                     });
                   }}
                   dense
                 />
               )}
             </div>
-            {predMinutesFilter.filter == '+-' && (
+            {predMinutesFilter.filter == "+-" && (
               <Input
                 value={predMinutes ? predMinutes : defaultPredMinutes}
                 onChange={(value) => {
                   handlePredMinutesChange({
                     value: value,
                     filter: predMinutesFilter.filter,
-                    filterValue: predMinutesFilter.filterValue
+                    filterValue: predMinutesFilter.filterValue,
                   });
                 }}
                 dense
@@ -667,27 +791,27 @@ export default function TeamPlayerRow({
             )}
           </TableCell>
           {/* EXTRA FILTRID */}
-          <TableCell>
+          <TableCell className={"extraFilter"}>
             <SelectionList
               value={extraMarket ? extraMarket : selectedExtraMarket}
               onChange={handleExtraMarketSelect}
-              list={[''].concat(Object.values(extraMarkets))}
+              list={[""].concat(Object.values(extraMarkets))}
               dense
             />
           </TableCell>
           {/* EXTRA FILTRI LIIN */}
-          <TableCell>
-            <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <TableCell className={"extraFilterLine"}>
+            <div style={{ display: "flex", flexDirection: "row" }}>
               <SelectionList
                 value={extraLineFilter.filter}
                 onChange={(value) => {
                   handleExtraLineChange({
                     value: extraLine,
                     filter: value,
-                    filterValue: extraLineFilter.filterValue
+                    filterValue: extraLineFilter.filterValue,
                   });
                 }}
-                list={['over', 'under']}
+                list={["over", "under"]}
                 dense
               />
 
@@ -697,7 +821,7 @@ export default function TeamPlayerRow({
                   handleExtraLineChange({
                     value: value,
                     filter: extraLineFilter.filter,
-                    filterValue: extraLineFilter.filterValue
+                    filterValue: extraLineFilter.filterValue,
                   });
                 }}
                 dense
@@ -705,16 +829,16 @@ export default function TeamPlayerRow({
             </div>
           </TableCell>
           {/* +- PLAYER */}
-          <TableCell>
+          <TableCell className={"wwoplayer"}>
             <SelectionList
               value={selectedWplayer}
               onChange={handleWPlayerChange}
-              list={[''].concat(wPlayers)}
+              list={[""].concat(wPlayers)}
               dense
             />
           </TableCell>
           {/* TOTAL GAMES (OVER/UNDER) */}
-          <TableCell>
+          <TableCell className={"totalGames"}>
             <Input
               value={`${totalGames} (${totalOver}/${totalUnder})`}
               onChange={() => {}}
@@ -723,7 +847,7 @@ export default function TeamPlayerRow({
             />
           </TableCell>
           {/* MATCHUP VALUE */}
-          <TableCell>
+          <TableCell className={"matchupValue"}>
             <Input
               value={matchUpValue ? matchUpValue : calculatedMatchUpValue}
               onChange={handleMatchUpValueChange}
@@ -735,7 +859,7 @@ export default function TeamPlayerRow({
             />
           </TableCell>
           {/* TRUE OVER % */}
-          <TableCell>
+          <TableCell className={"trueOver"}>
             <Input
               value={totalOverP.toString()}
               onChange={() => {}}
@@ -753,11 +877,11 @@ export default function TeamPlayerRow({
           </TableCell>
 
           {/* BOOKIE ODDS */}
-          <TableCell>
+          <TableCell className={"bookieOdds"}>
             <Input
               value={bookieOdds.over.toString()}
               onChange={(v) => {
-                handleBookieOddsChange(v, 'over');
+                handleBookieOddsChange(v, "over");
               }}
               dense
               narrow
@@ -765,22 +889,22 @@ export default function TeamPlayerRow({
             <Input
               value={bookieOdds.under.toString()}
               onChange={(v) => {
-                handleBookieOddsChange(v, 'under');
+                handleBookieOddsChange(v, "under");
               }}
               dense
               narrow
             />
           </TableCell>
           {/* UNIT SIZE */}
-          <TableCell>
+          <TableCell className={"unitSize"}>
             <Input
-              value={unitSize.under ? unitSize.under.toString() : 'Viga'}
+              value={unitSize.over ? unitSize.over.toString() : "Viga"}
               onChange={() => {}}
               dense
               disabled
             />
             <Input
-              value={unitSize.over ? unitSize.over.toString() : 'Viga'}
+              value={unitSize.under ? unitSize.under.toString() : "Viga"}
               onChange={() => {}}
               dense
               wide

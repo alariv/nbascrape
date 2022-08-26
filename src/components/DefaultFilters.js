@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { TableRow, TableCell } from '@mui/material';
-import SelectionList from './SelectionList';
-import teams from '../scrapedData/teams.json';
-import SelectionListMultiple from './SelectionListMultiple';
-import Input from './Input';
+import React, { useEffect, useState } from "react";
+import { TableRow, TableCell } from "@mui/material";
+import SelectionList from "./SelectionList";
+import teams from "../scrapedData/teams.json";
+import SelectionListMultiple from "./SelectionListMultiple";
+import Input from "./Input";
 
 export default function TeamPlayerRow({
   seasons,
@@ -16,15 +16,15 @@ export default function TeamPlayerRow({
   onExtraMarketChange,
   onPredMinutesChange,
   currentTeam,
-  seasonsLoading = false
+  seasonsLoading = false,
 }) {
-  const [opponent, setOpponent] = useState('');
-  const [market, setMarket] = useState('');
-  const [extraMarket, setExtraMarket] = useState('');
-  const [season, setSeason] = useState(['2021-22']);
-  const [matchUpValueSeason, setMatchUpValueSeason] = useState(['2021-22']);
-  const [predMinutes, setPredMinutes] = useState('');
-  const [team, setTeam] = useState('');
+  const [opponent, setOpponent] = useState("");
+  const [market, setMarket] = useState("");
+  const [extraMarket, setExtraMarket] = useState("");
+  const [season, setSeason] = useState(["2021-22"]);
+  const [matchUpValueSeason, setMatchUpValueSeason] = useState(["2021-22"]);
+  const [predMinutes, setPredMinutes] = useState("");
+  const [team, setTeam] = useState("");
   const [opponents, setOpponents] = useState([]);
 
   function makeOpponentsList() {
@@ -88,10 +88,11 @@ export default function TeamPlayerRow({
   return (
     <TableRow
       sx={{
-        '&:last-child td, &:last-child th': { border: 0 },
-        backgroundColor: 'rgba(0, 128, 128,.15)'
-      }}>
-      <TableCell component='th' scope='row'></TableCell>
+        "&:last-child td, &:last-child th": { border: 0 },
+        backgroundColor: "#dfe9e5",
+      }}
+    >
+      <TableCell component="th" scope="row"></TableCell>
       <TableCell>
         <SelectionList
           value={team}
@@ -123,9 +124,9 @@ export default function TeamPlayerRow({
         <SelectionList
           value={extraMarket}
           onChange={handleExtraMarketSelect}
-          list={[''].concat(extraMarkets)}
+          list={[""].concat(extraMarkets)}
           dense
-        />{' '}
+        />{" "}
       </TableCell>
       <TableCell></TableCell>
       <TableCell></TableCell>
