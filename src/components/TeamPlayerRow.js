@@ -336,52 +336,52 @@ export default function TeamPlayerRow({
       let wwoPlayerName = selectedWplayer.substring(2, selectedWplayer.length);
       let wwoPlayerPrefix = selectedWplayer.substring(0, 1);
 
-      let currentPlayer = "Bam Adebayo";
       let currentSeason = "2021-22";
 
       let wwoPlayerGameDates = [];
       let matchingGameDates = [];
-      Object.keys(list.players).forEach((thisPlayer, index) => {
-        if (thisPlayer == wwoPlayerName) {
-          console.log("FOUND wwoPlayer MATCH @", index);
+      if (wwoPlayerName.length && wwoPlayerPrefix.length) {
+        Object.keys(list.players).forEach((thisPlayer, index) => {
+          if (thisPlayer == wwoPlayerName) {
+            console.log("FOUND wwoPlayer MATCH @", index);
 
-          Object.keys(
-            list.players[wwoPlayerName].playerData[currentSeason].data
-          ).forEach((wwoPlayerGame) => {
-            wwoPlayerGameDates.push(
-              list.players[wwoPlayerName].playerData[currentSeason].data[
-                wwoPlayerGame
-              ].date
-            );
-          });
+            Object.keys(
+              list.players[wwoPlayerName].playerData[currentSeason].data
+            ).forEach((wwoPlayerGame) => {
+              wwoPlayerGameDates.push(
+                list.players[wwoPlayerName].playerData[currentSeason].data[
+                  wwoPlayerGame
+                ].date
+              );
+            });
 
-          Object.keys(
-            list.players[player].playerData[currentSeason].data
-          ).forEach((currentPlayerGame) => {
-            wwoPlayerGameDates.includes(
-              list.players[player].playerData[currentSeason].data[
-                currentPlayerGame
-              ].date
-            )
-              ? wwoPlayerPrefix == "+" &&
-                matchingGameDates.push(
-                  list.players[player].playerData[currentSeason].data[
-                    currentPlayerGame
-                  ].date
-                )
-              : wwoPlayerPrefix == "-" &&
-                matchingGameDates.push(
-                  list.players[player].playerData[currentSeason].data[
-                    currentPlayerGame
-                  ].date
-                );
-          });
-        }
-      });
-      console.log(matchingGameDates);
+            Object.keys(
+              list.players[player].playerData[currentSeason].data
+            ).forEach((currentPlayerGame) => {
+              wwoPlayerGameDates.includes(
+                list.players[player].playerData[currentSeason].data[
+                  currentPlayerGame
+                ].date
+              )
+                ? wwoPlayerPrefix == "+" &&
+                  matchingGameDates.push(
+                    list.players[player].playerData[currentSeason].data[
+                      currentPlayerGame
+                    ].date
+                  )
+                : wwoPlayerPrefix == "-" &&
+                  matchingGameDates.push(
+                    list.players[player].playerData[currentSeason].data[
+                      currentPlayerGame
+                    ].date
+                  );
+            });
+          }
+        });
+        console.log(matchingGameDates);
 
-      games = games.filter((game) => matchingGameDates.includes(game.date));
-
+        games = games.filter((game) => matchingGameDates.includes(game.date));
+      }
       console.log(games);
 
       overGames = games.filter((game) => {
