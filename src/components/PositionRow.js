@@ -1,34 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { TableRow, TableCell } from '@mui/material';
-import SelectionList from './SelectionList';
-import Input from './Input';
+import React, { useEffect, useState } from "react";
+import { TableRow, TableCell } from "@mui/material";
+import SelectionList from "./SelectionList";
+import Input from "./Input";
 
 export default function PositionRow({ position, players, team }) {
   const [values, setValues] = useState({
-    a: { value: '', player: '' },
-    b: { value: '', player: '' },
-    c: { value: '', player: '' }
+    a: { value: "", player: "" },
+    b: { value: "", player: "" },
+    c: { value: "", player: "" },
   });
   const [loading, setLoading] = useState(true);
   const [teamDepthDataFromLS, setTeamDepthDataFromLS] = useState({});
 
   useEffect(() => {
     setTeamDepthDataFromLS(
-      JSON.parse(window.localStorage.getItem('depthData'))
+      JSON.parse(window.localStorage.getItem("depthData"))
     );
   }, [team]);
 
   useEffect(() => {
     if (Object.keys(teamDepthDataFromLS).length && team) {
-      // // console.log('data FROM LS:');
-      // // console.log(teamDepthDataFromLS);
       setValues(
         teamDepthDataFromLS[team]
           ? teamDepthDataFromLS[team][position]
           : {
-              a: { value: '', player: '' },
-              b: { value: '', player: '' },
-              c: { value: '', player: '' }
+              a: { value: "", player: "" },
+              b: { value: "", player: "" },
+              c: { value: "", player: "" },
             }
       );
       setLoading(false);
@@ -36,7 +34,6 @@ export default function PositionRow({ position, players, team }) {
   }, [teamDepthDataFromLS]);
 
   const handlePositionChange = (playerClass, playerName) => {
-    // console.log('changed player pos', playerClass, playerName);
     let tempValues = values;
     const playerToReplace = tempValues[playerClass].player;
     tempValues[playerClass].player = playerName;
@@ -53,9 +50,6 @@ export default function PositionRow({ position, players, team }) {
     }
 
     setValues({ ...tempValues });
-    // console.log('values set to');
-    // console.log({ ...tempValues });
-    // console.log(values);
   };
 
   const handleTimeChange = (playerClass, time) => {
@@ -66,13 +60,11 @@ export default function PositionRow({ position, players, team }) {
 
   useEffect(() => {
     const depthDataFromLS =
-      JSON.parse(window.localStorage.getItem('depthData')) || {};
+      JSON.parse(window.localStorage.getItem("depthData")) || {};
     let dataToSave = { ...depthDataFromLS };
     dataToSave[team] = !dataToSave[team] ? {} : dataToSave[team];
     dataToSave[team][position] = values;
-    window.localStorage.setItem('depthData', JSON.stringify(dataToSave));
-
-    // // console.log('LS updated for', team, position)
+    window.localStorage.setItem("depthData", JSON.stringify(dataToSave));
   }, [values]);
 
   return (
@@ -80,43 +72,44 @@ export default function PositionRow({ position, players, team }) {
       {!loading && Object.keys(teamDepthDataFromLS).length && (
         <TableRow
           key={position}
-          sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+          sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+        >
           <TableCell>{position}</TableCell>
           <TableCell>
             <SelectionList
-              value={values['a'].player}
+              value={values["a"].player}
               list={players}
               onChange={(player) => {
-                handlePositionChange('a', player);
+                handlePositionChange("a", player);
               }}
               dense
             />
           </TableCell>
           <TableCell>
             <SelectionList
-              value={values['b'].player}
+              value={values["b"].player}
               list={players}
               onChange={(player) => {
-                handlePositionChange('b', player);
+                handlePositionChange("b", player);
               }}
               dense
             />
           </TableCell>
           <TableCell>
             <SelectionList
-              value={values['c'].player}
+              value={values["c"].player}
               list={players}
               onChange={(player) => {
-                handlePositionChange('c', player);
+                handlePositionChange("c", player);
               }}
               dense
             />
           </TableCell>
           <TableCell>
             <Input
-              value={values['a'].value}
+              value={values["a"].value}
               onChange={(time) => {
-                handleTimeChange('a', time);
+                handleTimeChange("a", time);
               }}
               dense
               narrow
@@ -124,9 +117,9 @@ export default function PositionRow({ position, players, team }) {
           </TableCell>
           <TableCell>
             <Input
-              value={values['b'].value}
+              value={values["b"].value}
               onChange={(time) => {
-                handleTimeChange('b', time);
+                handleTimeChange("b", time);
               }}
               dense
               narrow
@@ -134,9 +127,9 @@ export default function PositionRow({ position, players, team }) {
           </TableCell>
           <TableCell>
             <Input
-              value={values['c'].value}
+              value={values["c"].value}
               onChange={(time) => {
-                handleTimeChange('c', time);
+                handleTimeChange("c", time);
               }}
               dense
               narrow

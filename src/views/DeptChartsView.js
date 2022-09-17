@@ -10,25 +10,25 @@ import {
   TableHead,
   TableRow,
   TableCell,
-  TableBody
-} from '@mui/material';
-import PositionRow from 'components/PositionRow';
-import React, { useEffect, useState } from 'react';
-import teamsString from '../scrapedData/teams.json';
+  TableBody,
+} from "@mui/material";
+import PositionRow from "components/PositionRow";
+import React, { useEffect, useState } from "react";
+import teamsString from "../scrapedData/teams.json";
 
 export default function DeptCharts() {
   const [loading, setLoading] = useState(false);
   const [playersLoading, setPlayersLoading] = useState(false);
-  const [selectedTeam, setTeam] = useState('');
+  const [selectedTeam, setTeam] = useState("");
   const [teams, setTeams] = useState({});
   const [teamPlayers, setTeamPlayers] = useState({});
   const [sortedPlayers, setSortedPlayers] = useState({});
-  const tableHeadingStyle = { fontWeight: '600' };
-  const tableColumns = ['', 'A', 'B', 'C', 'A', 'B', 'C'];
+  const tableHeadingStyle = { fontWeight: "600" };
+  const tableColumns = ["", "A", "B", "C", "A", "B", "C"];
 
   useEffect(() => {
-    window.localStorage.getItem('selectedTeam') &&
-      setTeam(window.localStorage.getItem('selectedTeam'));
+    window.localStorage.getItem("selectedTeam") &&
+      setTeam(window.localStorage.getItem("selectedTeam"));
   }, []);
 
   useEffect(() => {
@@ -36,21 +36,16 @@ export default function DeptCharts() {
   }, [selectedTeam, teams]);
 
   useEffect(() => {
-    // setTeams(JSON.parse(teamsString))
-    // console.log(teamsString);
     setTeams(teamsString);
   }, [teamsString]);
 
   const handleTeamSelect = (team) => {
     setTeam(team);
-    // console.log('selected:', team);
     setPlayersLoading(true);
     let teamPlayersArr = [];
     let sortedPlayersList = {};
     Object.keys(teams[team].players).map((player) => {
       teamPlayersArr[player] = teams[team].players[player];
-      // console.log('player');
-      // console.log(player);
       sortedPlayersList[teams[team].players[player].pos] = !sortedPlayersList[
         teams[team].players[player].pos
       ]
@@ -61,28 +56,28 @@ export default function DeptCharts() {
     });
     setTeamPlayers(teamPlayersArr);
     setSortedPlayers(sortedPlayersList);
-    // console.log(sortedPlayersList);
-    window.localStorage.setItem('selectedTeam', team);
+    window.localStorage.setItem("selectedTeam", team);
     setPlayersLoading(false);
   };
 
   return (
     <>
-      <header className='App-header'>
+      <header className="App-header">
         <h3>DeptCharts</h3>
       </header>
       {!loading && (
         <div>
-          <FormControl style={{ minWidth: '200px' }}>
-            <InputLabel id='demo-simple-select-label'>Select team</InputLabel>
+          <FormControl style={{ minWidth: "200px" }}>
+            <InputLabel id="demo-simple-select-label">Select team</InputLabel>
             <Select
-              labelId='demo-simple-select-label'
-              id='demo-simple-select'
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
               value={selectedTeam}
-              label='Select team'
+              label="Select team"
               onChange={(e) => {
                 handleTeamSelect(e.target.value);
-              }}>
+              }}
+            >
               {Object.keys(teams).map((team, idx) => (
                 <MenuItem value={team} key={idx}>
                   {team}
@@ -95,9 +90,9 @@ export default function DeptCharts() {
 
       {selectedTeam && sortedPlayers && !loading && (
         <>
-          <Grid container spacing={2} className='statsTable depth'>
+          <Grid container spacing={2} className="statsTable depth">
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
                     {tableColumns.map((colHeading, idx) => (

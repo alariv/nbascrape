@@ -5,7 +5,7 @@ import teams from "../scrapedData/teams.json";
 import SelectionListMultiple from "./SelectionListMultiple";
 import Input from "./Input";
 
-export default function TeamPlayerRow({
+export default function DefaultFilters({
   seasons,
   markets,
   extraMarkets,
@@ -27,16 +27,18 @@ export default function TeamPlayerRow({
   const [team, setTeam] = useState("");
   const [opponents, setOpponents] = useState([]);
 
+  useEffect(() => {
+    seasons && setSeason([seasons[0]]);
+    seasons && setMatchUpValueSeason([seasons[0]]);
+  }, []);
+
   function makeOpponentsList() {
     let list = [];
-    // console.log(currentTeam)
     Object.keys(teams).forEach((thisTeam) => {
       if (currentTeam !== thisTeam) {
         list.push(thisTeam);
       }
     });
-    // console.log('made list')
-    // console.log(list)
     setOpponents(list);
   }
 
@@ -63,19 +65,16 @@ export default function TeamPlayerRow({
   };
 
   const handleSeasonSelect = (season) => {
-    // console.log('seaon in deffilters:', season)
     setSeason(season);
     onSeasonChange(season);
   };
 
   const handleMatchUpValueSeasonSelect = (season) => {
-    // console.log('seaon in deffilters:', season)
     setMatchUpValueSeason(season);
     onMatchUpValueSeasonChange(season);
   };
 
   const handlePredMinutesChange = (predMinutes) => {
-    // console.log('pred minutes in deffilters:', predMinutes)
     setPredMinutes(predMinutes);
     onPredMinutesChange(predMinutes);
   };
@@ -135,7 +134,7 @@ export default function TeamPlayerRow({
         <SelectionListMultiple
           value={matchUpValueSeason}
           onChange={handleMatchUpValueSeasonSelect}
-          list={[...seasons.slice(0, 2)]}
+          list={[...seasons.slice(0, 3)]}
           disabled={seasonsLoading}
           dense
         />

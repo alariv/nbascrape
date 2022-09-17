@@ -16,7 +16,7 @@ export default function TeamPlayerRow({
   index,
   filtersOnly = false,
   onSeasonChange = () => {},
-  onMatchUpValueSeasonChange = () => {},
+  onMatchUpValueSeasonChange = (season) => {},
   onOpponentSelect = () => {},
   onMarketSelect = () => {},
   onExtraMarketSelect = () => {},
@@ -29,6 +29,7 @@ export default function TeamPlayerRow({
   seasonsLoading = false,
   playerSeasons,
   teamPlayersData = {},
+  defaultMatchUpValueSeason,
 }) {
   const [market, setMarket] = useState("");
   const [extraMarket, setExtraMarket] = useState("");
@@ -37,6 +38,7 @@ export default function TeamPlayerRow({
   const [predMinutes, setPredMinutes] = useState("");
   const [extraLine, setExtraLine] = useState("");
   const [selectedWplayer, setWplayer] = useState("");
+  const [lastTeam, setLastTeam] = useState("");
   const [wPlayers, setWplayers] = useState(makeWplayersList());
   const [calculatedMatchUpValue, setCalculatedMatchUpValue] = useState("-");
   const [matchUpValue, setMatchUpValue] = useState("");
@@ -58,8 +60,9 @@ export default function TeamPlayerRow({
 
   function makeWplayersList() {
     let list = [];
-    players.forEach((thisPlayer) => {
-      if (player !== thisPlayer) {
+    let teamPlayersArr = Object.keys(teams[team].players);
+    teamPlayersArr.forEach((thisPlayer) => {
+      if (player != thisPlayer) {
         list.push("+ " + thisPlayer);
         list.push("- " + thisPlayer);
       }
@@ -68,97 +71,74 @@ export default function TeamPlayerRow({
   }
 
   useEffect(() => {
-    if (team) {
+    if (team && team !== lastTeam) {
       setWplayer("");
       setWplayers(makeWplayersList());
+      setLastTeam(team);
     }
   }, [team]);
 
   useEffect(() => {
     if (Object.keys(teamPlayersData).length) {
-      console.log("teamPlayersData.length");
-      console.log(Object.keys(teamPlayersData).length);
-
       const totalGames = findTotalGames(teamPlayersData);
       setTotalGames(Object.keys(teamPlayersData).length ? totalGames.total : 0);
       setTotalOver(Object.keys(teamPlayersData).length ? totalGames.over : 0);
       setTotalUnder(Object.keys(teamPlayersData).length ? totalGames.under : 0);
-      console.log("FOUNT TOTAL GAMES", totalGames.total);
 
       let justcalculatedMatchupValue;
-      if (
-        opponent &&
-        leaguesData[2022][opponent][
-          leagueStatsMap[market ? market : selectedMarket]
-        ] &&
-        leaguesData[2022]["League Average"][
-          leagueStatsMap[market ? market : selectedMarket]
-        ]
-      ) {
-        console.log("setting new calculatedMatchupValue");
-        setCalculatedMatchUpValue(
-          (
-            parseInt(
-              leaguesData[2022][opponent][
-                leagueStatsMap[market ? market : selectedMarket]
-              ]
-            ) /
-              parseInt(
-                leaguesData[2022]["League Average"][
-                  leagueStatsMap[market ? market : selectedMarket]
-                ]
-              ) -
-            1
-          )
-            .toFixed(5)
-            .toString()
-        );
-        justcalculatedMatchupValue = (
-          parseInt(
-            leaguesData[2022][opponent][
+
+      let opponentDataSum = 0;
+      let leagueDataSum = 0;
+      let divider = 0;
+      if (opponent && leaguesData && defaultMatchUpValueSeason) {
+        defaultMatchUpValueSeason.forEach((season) => {
+          if (
+            leaguesData[
+              season.split("-")[0].substr(0, 2) + season.split("-")[1]
+            ][opponent][leagueStatsMap[market ? market : selectedMarket]] &&
+            leaguesData[
+              season.split("-")[0].substr(0, 2) + season.split("-")[1]
+            ]["League Average"][
               leagueStatsMap[market ? market : selectedMarket]
             ]
-          ) /
-            parseInt(
-              leaguesData[2022]["League Average"][
+          ) {
+            divider += 1;
+            opponentDataSum += parseInt(
+              leaguesData[
+                season.split("-")[0].substr(0, 2) + season.split("-")[1]
+              ][opponent][leagueStatsMap[market ? market : selectedMarket]]
+            );
+
+            leagueDataSum += parseInt(
+              leaguesData[
+                season.split("-")[0].substr(0, 2) + season.split("-")[1]
+              ]["League Average"][
                 leagueStatsMap[market ? market : selectedMarket]
               ]
-            ) -
+            );
+          }
+        });
+      }
+
+      opponentDataSum = opponentDataSum / divider;
+      leagueDataSum = leagueDataSum / divider;
+
+      if (opponent && opponentDataSum && leagueDataSum) {
+        setCalculatedMatchUpValue(
+          (opponentDataSum / leagueDataSum - 1).toFixed(5).toString()
+        );
+        justcalculatedMatchupValue = (
+          opponentDataSum / leagueDataSum -
           1
         ).toFixed(5);
       } else {
-        // console.log("setting calculatedMatchupValue to -");
-
         setCalculatedMatchUpValue("-");
         justcalculatedMatchupValue = 0;
       }
 
-      console.log(
-        matchUpValue ? parseFloat(matchUpValue) : justcalculatedMatchupValue
-      );
-
       const matchupValueToUse = matchUpValue
         ? parseFloat(matchUpValue)
         : justcalculatedMatchupValue;
-      //RAW OVER = (OVerite arv/Total Games)*100
-      //True Over = (OVerite arv / Total Games) * 100 + Matchup %
-      //Matchup % = (Raw under*Matchup value)*Raw Over/100
-
-      //RAW OVER = (OVerite arv / Total Games) * 100
-      //EHK        (totalGames.over / totalGames.total) * 100
-
-      //RAW UNDER = (Underite arv / Total Games) * 100=
-      //EHK        (totalGames.under / totalGames.total) * 100
-
-      //True Over = (OVerite arv / Total Games) * 100 + Matchup %
-      //EHK         ((totalGames.over / totalGames.total) * 100) + ((totalGames.under / totalGames.total) * 100 * Number(matchupValueToUse)) * ((totalGames.over / totalGames.total) * 100) / 100
-
-      //True Under = (Underite arv / Total Games) * 100 + Matchup %
-      //EHK         ((totalGames.under / totalGames.total) * 100) + ((totalGames.under / totalGames.total) * 100 * Number(matchupValueToUse)) * ((totalGames.over / totalGames.total) * 100) / 100
-
-      //Matchup % = (Raw under*Matchup value)*Raw Over/100
-      //EHK         ((totalGames.under / totalGames.total) * 100 * Number(matchupValueToUse)) * ((totalGames.over / totalGames.total) * 100) / 100
-
       const overP = (
         totalGames.over > 0
           ? (totalGames.over / totalGames.total) * 100 +
@@ -226,6 +206,8 @@ export default function TeamPlayerRow({
     market,
     selectedMarket,
     bookieOdds,
+    defaultSeason,
+    defaultMatchUpValueSeason,
   ]);
 
   const findTotalGames = (list) => {
@@ -242,19 +224,12 @@ export default function TeamPlayerRow({
       FGA: "fga",
       "3PA": "3pa",
     };
-    console.log("finding total for", player);
-    console.log(
-      "searching from",
-      JSON.stringify(season.length ? season : defaultSeason),
-      (season.length ? season : defaultSeason).length
-    );
+
     let playerMatchingSeasons;
     let games = [];
     let overGames = [];
     let underGames = [];
     if (player) {
-      // console.log("LIST:", JSON.stringify(list));
-      //filtering season
       playerMatchingSeasons = Object.keys(list.players).includes(player)
         ? Object.keys(list.players[player].playerData).filter((currentSeason) =>
             (season.length ? season : defaultSeason).includes(currentSeason)
@@ -272,18 +247,6 @@ export default function TeamPlayerRow({
         });
       });
 
-      console.log("starting to filter from games:", games.length);
-
-      //filtering market + line
-      // games = games.filter((game) => {
-      //   return parseInt(game[marketMapping[marketToSearch]]) > parseInt(line);
-      // });
-
-      //filtering predictedMinutes
-
-      console.log(predMinutesFilter);
-      console.log(predMinutes);
-
       games = games.filter((game) => {
         const minValue =
           predMinutesFilter.filter == "+-"
@@ -299,17 +262,13 @@ export default function TeamPlayerRow({
             ? 999
             : parseInt(predMinutes) - 1;
 
-        console.log("minutes minVal:", minValue);
-        console.log("minutes maxVal:", maxValue);
         const minutesPlayed = game["mp"].split(":")[0];
-        console.log("minutesPlayed in match:", minutesPlayed);
         return (
           parseFloat(minutesPlayed) >= minValue &&
           parseFloat(minutesPlayed) <= maxValue
         );
       });
 
-      //filtering extraMarket + extraLine
       if (
         extraLineFilter.filter &&
         extraLineFilter.filterValue &&
@@ -324,65 +283,56 @@ export default function TeamPlayerRow({
         });
       }
 
-      console.log(games);
-
-      //filtering with/witouh player
-
-      console.log("comparing extraMarket to game value");
-      console.log("----------");
-      console.log(selectedWplayer);
-      console.log("----------");
-
       let wwoPlayerName = selectedWplayer.substring(2, selectedWplayer.length);
       let wwoPlayerPrefix = selectedWplayer.substring(0, 1);
 
-      let currentSeason = "2021-22";
-
       let wwoPlayerGameDates = [];
       let matchingGameDates = [];
+
+      let seasonToSearch = season.length ? season : defaultSeason;
       if (wwoPlayerName.length && wwoPlayerPrefix.length) {
-        Object.keys(list.players).forEach((thisPlayer, index) => {
-          if (thisPlayer == wwoPlayerName) {
-            console.log("FOUND wwoPlayer MATCH @", index);
-
-            Object.keys(
-              list.players[wwoPlayerName].playerData[currentSeason].data
-            ).forEach((wwoPlayerGame) => {
-              wwoPlayerGameDates.push(
-                list.players[wwoPlayerName].playerData[currentSeason].data[
-                  wwoPlayerGame
-                ].date
-              );
-            });
-
-            Object.keys(
-              list.players[player].playerData[currentSeason].data
-            ).forEach((currentPlayerGame) => {
-              wwoPlayerGameDates.includes(
-                list.players[player].playerData[currentSeason].data[
-                  currentPlayerGame
-                ].date
-              )
-                ? wwoPlayerPrefix == "+" &&
-                  matchingGameDates.push(
-                    list.players[player].playerData[currentSeason].data[
-                      currentPlayerGame
-                    ].date
-                  )
-                : wwoPlayerPrefix == "-" &&
-                  matchingGameDates.push(
-                    list.players[player].playerData[currentSeason].data[
-                      currentPlayerGame
+        seasonToSearch.forEach((currentSeason) => {
+          Object.keys(list.players).forEach((thisPlayer, index) => {
+            if (thisPlayer == wwoPlayerName) {
+              if (list.players[wwoPlayerName].playerData[currentSeason]) {
+                Object.keys(
+                  list.players[wwoPlayerName].playerData[currentSeason].data
+                ).forEach((wwoPlayerGame) => {
+                  wwoPlayerGameDates.push(
+                    list.players[wwoPlayerName].playerData[currentSeason].data[
+                      wwoPlayerGame
                     ].date
                   );
-            });
-          }
+                });
+              }
+
+              Object.keys(
+                list.players[player].playerData[currentSeason].data
+              ).forEach((currentPlayerGame) => {
+                wwoPlayerGameDates.includes(
+                  list.players[player].playerData[currentSeason].data[
+                    currentPlayerGame
+                  ].date
+                )
+                  ? wwoPlayerPrefix == "+" &&
+                    matchingGameDates.push(
+                      list.players[player].playerData[currentSeason].data[
+                        currentPlayerGame
+                      ].date
+                    )
+                  : wwoPlayerPrefix == "-" &&
+                    matchingGameDates.push(
+                      list.players[player].playerData[currentSeason].data[
+                        currentPlayerGame
+                      ].date
+                    );
+              });
+            }
+          });
         });
-        console.log(matchingGameDates);
 
         games = games.filter((game) => matchingGameDates.includes(game.date));
       }
-      console.log(games);
 
       overGames = games.filter((game) => {
         return (
@@ -396,7 +346,6 @@ export default function TeamPlayerRow({
       });
     }
 
-    console.log("finishing", Object.keys(games).length);
     return {
       total: games.length,
       over: overGames.length,
@@ -415,10 +364,6 @@ export default function TeamPlayerRow({
         : predMinutesFilter.filter +
           ":" +
           (predMinutes ? predMinutes : defaultPredMinutes);
-
-    console.log("calculating unit size:");
-    // console.log('totalGames', totalGames);
-    // const totalGames = findTotalGames(teamPlayersData);
 
     const requestOptions = {
       method: "POST",
@@ -442,12 +387,10 @@ export default function TeamPlayerRow({
     fetch("http://localhost:3001/calculateunitsize", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log("new data from calculateUnitSize");
         setUnitSize({
           under: data.unitSizeUnder,
           over: data.unitSizeOver,
         });
-        console.log(data);
       })
       .catch((err) => {
         console.log(err);
@@ -469,14 +412,6 @@ export default function TeamPlayerRow({
           ":" +
           (predMinutes ? predMinutes : defaultPredMinutes);
 
-    console.log("saving player", player);
-    console.log("marketToSave", marketToSave);
-    console.log("line", line);
-    console.log("seasonToSave", seasonToSave);
-    console.log("predMinutes", predMinutesToSave);
-    console.log("extraMarketToSave", extraMarketToSave);
-    console.log("selectedWplayer", selectedWplayer);
-
     const saveObj = {
       playerName: player,
       market: marketToSave,
@@ -484,11 +419,11 @@ export default function TeamPlayerRow({
       season: seasonToSave,
       predMinutes: predMinutesToSave,
       extraMarket: extraMarketToSave,
+      extraLineFilter: extraLineFilter,
       selectedWplayer: selectedWplayer,
     };
 
     const savedPlayerRows = JSON.parse(localStorage.getItem("spr")) || {};
-    console.log(savedPlayerRows);
 
     const modifiedPlayerRows = savedPlayerRows
       ? {
@@ -501,63 +436,19 @@ export default function TeamPlayerRow({
   };
 
   useEffect(() => {
-    let depthData =
-      JSON.parse(window.localStorage.getItem("depthData")) || null;
-    !!depthData &&
+    let depthData = window.localStorage.getItem("depthData")
+      ? JSON.parse(window.localStorage.getItem("depthData"))
+      : [];
+    if (!!depthData && depthData[team]) {
       Object.keys(depthData[team]).forEach((pos) => {
-        // console.log(pos);
         Object.keys(depthData[team][pos]).forEach((positionClass) => {
           if (depthData[team][pos][positionClass].player == player) {
             setPredMinutes(depthData[team][pos][positionClass].value);
           }
         });
       });
-  }, []);
-
-  useEffect(() => {
-    if (
-      opponent &&
-      leaguesData[2022][opponent][
-        leagueStatsMap[market ? market : selectedMarket]
-      ] &&
-      leaguesData[2022]["League Average"][
-        leagueStatsMap[market ? market : selectedMarket]
-      ]
-    ) {
-      console.log("setting new calculatedMatchupValue");
-      setCalculatedMatchUpValue(
-        (
-          parseInt(
-            leaguesData[2022][opponent][
-              leagueStatsMap[market ? market : selectedMarket]
-            ]
-          ) /
-            parseInt(
-              leaguesData[2022]["League Average"][
-                leagueStatsMap[market ? market : selectedMarket]
-              ]
-            ) -
-          1
-        )
-          .toFixed(5)
-          .toString()
-      );
-    } else {
-      // console.log("setting calculatedMatchupValue to -");
-      // console.log(!!opponent);
-      // console.log(
-      //   !!leaguesData[2022][opponent][
-      //     leagueStatsMap[market ? market : selectedMarket]
-      //   ]
-      // );
-      // console.log(
-      //   !!leaguesData[2022]['League Average'][
-      //     leagueStatsMap[market ? market : selectedMarket]
-      //   ]
-      // );
-      setCalculatedMatchUpValue("-");
     }
-  }, [selectedMarket, market, opponent]);
+  }, []);
 
   const markets = {
     "3P": "3P",
@@ -586,32 +477,29 @@ export default function TeamPlayerRow({
     "3PA": "3PA",
   };
 
-  // useEffect(() => {
-  //   console.log('defSeason in teamPlayer sent to row:', defaultSeason)
-  //   console.log(players)
-  // }, [defaultSeason])
+  const currentDate = new Date();
 
   const seasons = [
-    "2016-17",
-    "2017-18",
-    "2018-19",
-    "2019-20",
-    "2020-21",
-    "2021-22",
+    `${currentDate.getFullYear() - 3}-${(currentDate.getFullYear() - 2)
+      .toString()
+      .substr(2, 4)}`,
+    `${currentDate.getFullYear() - 2}-${(currentDate.getFullYear() - 1)
+      .toString()
+      .substr(2, 4)}`,
+    `${currentDate.getFullYear() - 1}-${currentDate
+      .getFullYear()
+      .toString()
+      .substr(2, 4)}`,
+    `${currentDate.getFullYear()}-${(currentDate.getFullYear() + 1)
+      .toString()
+      .substr(2, 4)}`,
   ];
-
-  //   const handleOpponentSelect = team => {
-  //     setOpponent(team)
-  //   }
 
   const handleMarketSelect = (market) => {
     setMarket(market);
     const savedPlayerRows = JSON.parse(localStorage.getItem("spr")) || {};
 
-    // console.log(savedPlayerRows[player][market]);
-
     if (savedPlayerRows[player] && savedPlayerRows[player][market]) {
-      //////////SIIN
       setExtraMarket(savedPlayerRows[player][market].extraMarket);
       setSeason(
         typeof savedPlayerRows[player][market].season === "string"
@@ -625,6 +513,8 @@ export default function TeamPlayerRow({
         filterValue: savedPlayerRows[player][market].predMinutes.split(":")[1],
       });
       setWplayer(savedPlayerRows[player][market].selectedWplayer);
+      setExtraLineFilter(savedPlayerRows[player][market].extraLineFilter);
+      setExtraLine(savedPlayerRows[player][market].extraLineFilter.filterValue);
     }
   };
   const handleExtraMarketSelect = (extraMarket) => {
@@ -651,6 +541,10 @@ export default function TeamPlayerRow({
     });
   };
 
+  const handleMatchUpValueSeasonChange = (value) => {
+    onMatchUpValueSeasonChange(value);
+  };
+
   const handleExtraLineChange = (line) => {
     setExtraLine(line.value);
     setExtraLineFilter({
@@ -664,7 +558,6 @@ export default function TeamPlayerRow({
   };
 
   const handleBookieOddsChange = (odds, direction) => {
-    console.log("odds change", odds, direction);
     setBookieOdds({ ...bookieOdds, [direction]: odds });
   };
 
@@ -682,7 +575,7 @@ export default function TeamPlayerRow({
           extraMarkets={Object.values(extraMarkets)}
           currentTeam={team}
           seasonsLoading={seasonsLoading}
-          onMatchUpValueSeasonChange={onMatchUpValueSeasonChange}
+          onMatchUpValueSeasonChange={handleMatchUpValueSeasonChange}
         />
       ) : (
         <TableRow
@@ -730,7 +623,7 @@ export default function TeamPlayerRow({
             <SelectionListMultiple
               value={season.length ? season : defaultSeason}
               onChange={handleSeasonSelect}
-              list={playerSeasons.reverse()}
+              list={playerSeasons}
               disabled={seasonsLoading}
               dense
             />
@@ -856,6 +749,7 @@ export default function TeamPlayerRow({
               }}
               dense
               wide
+              disabled
             />
           </TableCell>
           {/* TRUE OVER % */}
