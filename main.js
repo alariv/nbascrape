@@ -10,6 +10,8 @@ import cheerio from "cheerio";
 import request from "request";
 import { calculateUnitSize } from "./calculate.js";
 import { getTeamsShorts } from "./getTeamsShorts.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 var app = express();
 const appserver = http.createServer(app);
@@ -33,6 +35,17 @@ const corsOpts = {
 };
 
 app.use(cors(corsOpts));
+
+app.use(express.static("react/build"));
+// app.get("/", (req, res) => {
+//   const __filename = fileURLToPath(import.meta.url);
+
+//   const __dirname = path.dirname(__filename);
+
+//   console.log("dirname??", __dirname);
+//   // res.sendFile(path.join(__dirname, "react", "build", "index.html"));
+//   // res.send("This is from express.js");
+// });
 
 app.get("/updateTeamsData", async (req, res) => {
   try {
