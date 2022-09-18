@@ -1,0 +1,6 @@
+cmd.exe /c "npm install"
+cmd.exe /c "cd ./react/"
+cmd.exe /c "npm install"
+cmd.exe /c "cd .."
+cmd.exe /c "forever start ./server.js"
+cmd.exe /c "start http://localhost:3001/"
