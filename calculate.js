@@ -21,18 +21,19 @@ export function calculateUnitSize(
     unitSizeUnder: parseFloat(
       parseFloat(
         (
-          ((parseInt(bookieOdds.under) - 1) * (parseFloat(totalUnderP) / 100) -
+          ((parseFloat(bookieOdds.under) - 1) *
+            (parseFloat(totalUnderP) / 100) -
             (1 - parseFloat(totalUnderP) / 100)) /
-          (parseInt(bookieOdds.under) - 1)
+          (parseFloat(bookieOdds.under) - 1)
         ).toString()
       ) * 10
     ).toFixed(4),
     unitSizeOver: parseFloat(
       parseFloat(
         (
-          ((parseInt(bookieOdds.over) - 1) * (parseFloat(totalOverP) / 100) -
+          ((parseFloat(bookieOdds.over) - 1) * (parseFloat(totalOverP) / 100) -
             (1 - parseFloat(totalOverP) / 100)) /
-          (parseInt(bookieOdds.over) - 1)
+          (parseFloat(bookieOdds.over) - 1)
         ).toString()
       ) * 10
     ).toFixed(4),
