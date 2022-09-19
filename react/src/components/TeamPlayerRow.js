@@ -79,6 +79,12 @@ export default function TeamPlayerRow({
   }, [team]);
 
   useEffect(() => {
+    if (opponent) {
+      setMatchUpValue("");
+    }
+  }, [opponent, team]);
+
+  useEffect(() => {
     if (Object.keys(teamPlayersData).length) {
       const totalGames = findTotalGames(teamPlayersData);
       setTotalGames(Object.keys(teamPlayersData).length ? totalGames.total : 0);
@@ -161,8 +167,8 @@ export default function TeamPlayerRow({
           : 0
       ).toFixed(4);
 
-      setTotalOverP(
-        (totalGames.over > 0
+      const totalOverPToSet = (
+        totalGames.over > 0
           ? (totalGames.over / totalGames.total) * 100 +
             ((totalGames.under / totalGames.total) *
               100 *
@@ -170,19 +176,11 @@ export default function TeamPlayerRow({
               ((totalGames.over / totalGames.total) * 100)) /
               100
           : 0
-        ).toFixed(4)
-      );
-      setTotalUnderP(
-        (totalGames.under > 0
-          ? (totalGames.under / totalGames.total) * 100 +
-            ((totalGames.under / totalGames.total) *
-              100 *
-              Number(matchupValueToUse) *
-              ((totalGames.over / totalGames.total) * 100)) /
-              100
-          : 0
-        ).toFixed(4)
-      );
+      ).toFixed(4);
+
+      setTotalOverP(totalOverPToSet);
+      console.log("totalOverPToSet", totalOverPToSet);
+      setTotalUnderP((100 - parseFloat(totalOverPToSet)).toFixed(5).toString());
       setTimeout(() => {
         calculateUnitSize(
           totalGames.total,
@@ -208,6 +206,8 @@ export default function TeamPlayerRow({
     bookieOdds,
     defaultSeason,
     defaultMatchUpValueSeason,
+    opponent,
+    matchUpValue,
   ]);
 
   const findTotalGames = (list) => {
@@ -305,28 +305,29 @@ export default function TeamPlayerRow({
                   );
                 });
               }
-
-              Object.keys(
-                list.players[player].playerData[currentSeason].data
-              ).forEach((currentPlayerGame) => {
-                wwoPlayerGameDates.includes(
-                  list.players[player].playerData[currentSeason].data[
-                    currentPlayerGame
-                  ].date
-                )
-                  ? wwoPlayerPrefix == "+" &&
-                    matchingGameDates.push(
-                      list.players[player].playerData[currentSeason].data[
-                        currentPlayerGame
-                      ].date
-                    )
-                  : wwoPlayerPrefix == "-" &&
-                    matchingGameDates.push(
-                      list.players[player].playerData[currentSeason].data[
-                        currentPlayerGame
-                      ].date
-                    );
-              });
+              if (list.players[player].playerData[currentSeason]) {
+                Object.keys(
+                  list.players[player].playerData[currentSeason].data
+                ).forEach((currentPlayerGame) => {
+                  wwoPlayerGameDates.includes(
+                    list.players[player].playerData[currentSeason].data[
+                      currentPlayerGame
+                    ].date
+                  )
+                    ? wwoPlayerPrefix == "+" &&
+                      matchingGameDates.push(
+                        list.players[player].playerData[currentSeason].data[
+                          currentPlayerGame
+                        ].date
+                      )
+                    : wwoPlayerPrefix == "-" &&
+                      matchingGameDates.push(
+                        list.players[player].playerData[currentSeason].data[
+                          currentPlayerGame
+                        ].date
+                      );
+                });
+              }
             }
           });
         });
@@ -749,7 +750,6 @@ export default function TeamPlayerRow({
               }}
               dense
               wide
-              disabled
             />
           </TableCell>
           {/* TRUE OVER % */}

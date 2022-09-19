@@ -26,6 +26,10 @@
   padding-top: 60px;
 }
 
+.Mui-disabled fieldset {
+  display: none;
+}
+
 .dense .MuiSelect-select,
 .dense .MuiInputBase-input {
   min-width: 30px;

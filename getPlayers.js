@@ -6,13 +6,17 @@ export async function getPlayers(url, teams) {
   return new Promise((resolve) => {
     Object.keys(teams).map((team, idx) => {
       let teamShort = teams[team].teamShort;
-
+      const currentDate = new Date();
+      let yearToFetch =
+        currentDate.getMonth() < 8
+          ? new Date().getFullYear().toString()
+          : (new Date().getFullYear() + 1).toString();
       request(
         {
           method: "GET",
           url: url
             .replace("{{teamShort}}", teamShort)
-            .replace("{{year}}", new Date().getFullYear().toString()),
+            .replace("{{year}}", yearToFetch),
         },
         (err, response, body) => {
           counter += 1;

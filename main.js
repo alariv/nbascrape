@@ -62,7 +62,7 @@ app.get("/updateTeamsData", async (req, res) => {
           teams = teamsWithPlayers;
           // global.teamsWPlayers = teamsWithPlayers;
           fs.writeFile(
-            "../src/scrapedData/teams.json",
+            "react/src/scrapedData/teams.json",
             JSON.stringify(teams),
             function (err, data) {
               if (!err) {
@@ -78,7 +78,7 @@ app.get("/updateTeamsData", async (req, res) => {
             .then((data) => {
               console.log("finished getLeagueStats");
               fs.writeFile(
-                "../src/scrapedData/leaguesData.json",
+                "react/src/scrapedData/leaguesData.json",
                 JSON.stringify(data),
                 function (err, data) {
                   if (!err) {
@@ -169,7 +169,7 @@ app.post("/updatePlayersStats/:team", async (req, res) => {
 const updateLeaguesData = () => {
   getLeagueStats(leagueStatsHtml).then((data) => {
     fs.writeFile(
-      "../src/scrapedData/leaguesData.json",
+      "react/src/scrapedData/leaguesData.json",
       JSON.stringify(data),
       function (err, data) {
         if (!err) {
@@ -288,7 +288,7 @@ const updatePlayersStats = (team, teams, res) => {
   return new Promise((resolve) => {
     getPlayersStats(teamObj, baseUrl).then((data) => {
       fs.writeFile(
-        "../src/scrapedData/test.json",
+        "react/src/scrapedData/test.json",
         JSON.stringify(data),
         function (err, data) {
           if (!err) {
