@@ -16,7 +16,7 @@ import PositionRow from "components/PositionRow";
 import React, { useEffect, useState } from "react";
 import teamsString from "../scrapedData/teams.json";
 
-export default function DeptCharts() {
+export default function DepthCharts() {
   const [loading, setLoading] = useState(false);
   const [playersLoading, setPlayersLoading] = useState(false);
   const [selectedTeam, setTeam] = useState("");
@@ -63,7 +63,7 @@ export default function DeptCharts() {
   return (
     <>
       <header className="App-header">
-        <h3>DeptCharts</h3>
+        <h3>DepthCharts</h3>
       </header>
       {!loading && (
         <div>

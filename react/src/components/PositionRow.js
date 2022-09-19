@@ -19,7 +19,11 @@ export default function PositionRow({ position, players, team }) {
   }, [team]);
 
   useEffect(() => {
-    if (Object.keys(teamDepthDataFromLS).length && team) {
+    if (
+      teamDepthDataFromLS &&
+      Object.keys(teamDepthDataFromLS).length &&
+      team
+    ) {
       setValues(
         teamDepthDataFromLS[team]
           ? teamDepthDataFromLS[team][position]
@@ -77,7 +81,7 @@ export default function PositionRow({ position, players, team }) {
           <TableCell>{position}</TableCell>
           <TableCell>
             <SelectionList
-              value={values["a"].player}
+              value={(values && values["a"]?.player) || ""}
               list={players}
               onChange={(player) => {
                 handlePositionChange("a", player);
@@ -87,7 +91,7 @@ export default function PositionRow({ position, players, team }) {
           </TableCell>
           <TableCell>
             <SelectionList
-              value={values["b"].player}
+              value={(values && values["b"]?.player) || ""}
               list={players}
               onChange={(player) => {
                 handlePositionChange("b", player);
@@ -97,7 +101,7 @@ export default function PositionRow({ position, players, team }) {
           </TableCell>
           <TableCell>
             <SelectionList
-              value={values["c"].player}
+              value={(values && values["c"]?.player) || ""}
               list={players}
               onChange={(player) => {
                 handlePositionChange("c", player);
@@ -107,7 +111,7 @@ export default function PositionRow({ position, players, team }) {
           </TableCell>
           <TableCell>
             <Input
-              value={values["a"].value}
+              value={(values && values["a"]?.value) || ""}
               onChange={(time) => {
                 handleTimeChange("a", time);
               }}
@@ -117,7 +121,7 @@ export default function PositionRow({ position, players, team }) {
           </TableCell>
           <TableCell>
             <Input
-              value={values["b"].value}
+              value={(values && values["b"]?.value) || ""}
               onChange={(time) => {
                 handleTimeChange("b", time);
               }}
@@ -127,7 +131,7 @@ export default function PositionRow({ position, players, team }) {
           </TableCell>
           <TableCell>
             <Input
-              value={values["c"].value}
+              value={(values && values["c"]?.value) || ""}
               onChange={(time) => {
                 handleTimeChange("c", time);
               }}

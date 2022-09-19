@@ -5,7 +5,7 @@ import { AppBar } from "@mui/material";
 import { Toolbar } from "@mui/material";
 import { Button } from "@mui/material";
 import Teams from "./views/TeamsView";
-import DeptCharts from "./views/DeptChartsView";
+import DepthCharts from "./views/DepthChartsView";
 import Stack from "@mui/material/Stack";
 import LinearProgress from "@mui/material/LinearProgress";
 import Sync from "@mui/icons-material/Sync";
@@ -78,7 +78,7 @@ function App() {
             color="secondary"
             sx={{ fontWeight: 600, margin: "0 20px" }}
             onClick={() => {
-              navigate("/debt");
+              navigate("/depth");
             }}
           >
             Depth charts
@@ -101,7 +101,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Teams />} />
-        <Route path="/debt" element={<DeptCharts />} />
+        <Route path="/depth" element={<DepthCharts />} />
         {/* <Route path="/matchup" element={<MatchUps />} /> */}
       </Routes>
     </div>
