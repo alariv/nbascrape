@@ -5,7 +5,7 @@ export async function getTeamsShorts(url, teams) {
   let counter = 0;
   return new Promise((resolve) => {
     Object.keys(teams).map((team, idx) => {
-      let teamShort = teams[team].link.split("/")[1];
+      let teamShort = teams[team].link.split("/")[2];
       request(
         {
           method: "GET",

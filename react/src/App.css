@@ -1,7 +1,7 @@
 .App {
-  background-color: #b5d2c6b0;
-  padding-left: 40px;
-  padding-right: 40px;
+  background-color: #545454b0;
+  padding-left: 20px;
+  padding-right: 20px;
   min-height: 100vh;
 }
 
@@ -22,7 +22,7 @@
   align-items: flex-start;
   justify-content: start;
   font-size: calc(10px + 2vmin);
-  color: rgb(0, 128, 128);
+  color: #a5a5a5;
   padding-top: 60px;
 }
 
@@ -34,7 +34,7 @@
 .dense .MuiInputBase-input {
   min-width: 30px;
 }
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected {
+.Mui-selected {
   background-color: rgb(25 210 82 / 30%) !important;
 }
 
@@ -46,8 +46,7 @@
   max-width: 30px;
 }
 
-.css-11xur9t-MuiPaper-root-MuiTableContainer-root,
-.css-mhc70k-MuiGrid-root {
+.statsTable {
   background-color: #eff4f2 !important;
 }
 
@@ -96,12 +95,14 @@ h3 {
 .multiSelect {
   max-width: 120px;
 }
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root {
+.MuiTableCell-root.MuiTableCell-head.MuiTableCell-stickyHeader.MuiTableCell-sizeMedium {
+  background-color: #eff4f2 !important;
+}
+.MuiMenuItem-root.MuiMenuItem-gutters.MuiButtonBase-root {
   min-height: 35px !important;
 }
 
-.css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled
-  .MuiOutlinedInput-notchedOutline {
+.Mui-disabled .MuiOutlinedInput-notchedOutline {
   border-color: transparent !important;
   background-color: #8080800d;
 }
@@ -126,11 +127,11 @@ h3 {
 .extraFilter,
 .extraFilterLine,
 .matchupValue {
-  background-color: #c6dcd369;
+  background-color: #00000017;
 }
 
-.MuiTableRow-root:hover {
-  background-color: #d1dad6 !important;
+.MuiTableRow-root:not(.MuiTableRow-head):hover {
+  background-color: #34acff33 !important;
 }
 @keyframes App-logo-spin {
   from {

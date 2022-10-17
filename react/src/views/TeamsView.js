@@ -19,7 +19,7 @@ import TeamPlayerRow from "../components/TeamPlayerRow";
 import teamsString from "../scrapedData/teams.json";
 import Input from "components/Input";
 
-export default function Teams() {
+export default function Teams({ setOverallLoading }) {
   const [loading, setLoading] = useState(false);
   const [playersLoading, setPlayersLoading] = useState(false);
   const [selectedTeam, setTeam] = useState("");
@@ -37,8 +37,15 @@ export default function Teams() {
   const [teamPlayers, setTeamPlayers] = useState([]);
   const [teamPlayersData, setTeamPlayersData] = useState({});
   const [teams, setTeams] = useState({});
+  const [predMinutesToggleState, setPredMinutesToggleState] = useState("depth");
 
   const currentDate = new Date();
+
+  useEffect(() => {
+    playersLoading || seasonsLoading || loading
+      ? setOverallLoading(true)
+      : setOverallLoading(false);
+  }, [playersLoading, seasonsLoading, loading]);
 
   const tableColumns = [
     selectedTeam,
@@ -47,7 +54,7 @@ export default function Teams() {
     "Line",
     "Seasons",
     "Pred. min range",
-    "Extra filtrid",
+    "Extra\nfiltrid",
     "Line",
     "+/- player",
     "Total games (Over/Under)",
@@ -171,6 +178,11 @@ export default function Teams() {
     setdefaultPredMinutes(predMinutes);
   };
 
+  const onPredMinutesToggle = (value) => {
+    console.log("toggled????", value);
+    setPredMinutesToggleState(value);
+  };
+
   return (
     <>
       <header className="App-header">
@@ -201,18 +213,32 @@ export default function Teams() {
 
       {selectedTeam && !loading && (
         <>
-          <TableContainer component={Paper} className="statsTable">
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableContainer
+            component={Paper}
+            className="statsTable"
+            sx={{ maxHeight: "100vh" }}
+          >
+            <Table
+              sx={{ minWidth: 650 }}
+              aria-label="simple table"
+              stickyHeader
+            >
               <TableHead>
-                <TableRow>
+                <TableRow
+                  sx={{
+                    "&:last-child td, &:last-child th": {
+                      borderWidth: 0,
+                      borderColor: "white",
+                    },
+                    justifyContent: "space-evenly",
+                  }}
+                >
                   {tableColumns.map((colHeading, idx) => (
                     <TableCell key={idx} sx={tableHeadingStyle}>
                       {colHeading}
                     </TableCell>
                   ))}
                 </TableRow>
-              </TableHead>
-              <TableBody>
                 <TeamPlayerRow
                   index={9999}
                   filtersOnly
@@ -227,8 +253,10 @@ export default function Teams() {
                   seasonsLoading={seasonsLoading}
                   playerSeasons={[]}
                   defaultMatchUpValueSeason={defaultMatchUpValueSeason}
+                  onPredMinutesToggle={onPredMinutesToggle}
                 />
-
+              </TableHead>
+              <TableBody>
                 {teamPlayers.map((player, idx) => {
                   return (
                     <TeamPlayerRow
@@ -254,6 +282,7 @@ export default function Teams() {
                       ).reverse()}
                       teamPlayersData={teamPlayersData[selectedTeam]}
                       defaultMatchUpValueSeason={defaultMatchUpValueSeason}
+                      predMinutesToggleState={predMinutesToggleState}
                     />
                   );
                 })}

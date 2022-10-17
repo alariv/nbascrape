@@ -57,6 +57,7 @@ function App() {
   return (
     <div className="App">
       <AppBar
+        position={"absolute"}
         color="transparent"
         sx={{
           alignItems: "center",
@@ -66,6 +67,8 @@ function App() {
         <Toolbar>
           <Button
             variant="text"
+            color="info"
+            size="large"
             sx={{ fontWeight: 600, margin: "0 20px" }}
             onClick={() => {
               navigate("/");
@@ -75,7 +78,8 @@ function App() {
           </Button>
           <Button
             variant="text"
-            color="secondary"
+            color="error"
+            size="large"
             sx={{ fontWeight: 600, margin: "0 20px" }}
             onClick={() => {
               navigate("/depth");
@@ -100,7 +104,16 @@ function App() {
       </AppBar>
 
       <Routes>
-        <Route path="/" element={<Teams />} />
+        <Route
+          path="/"
+          element={
+            <Teams
+              setOverallLoading={(v) => {
+                setDataLoading(v);
+              }}
+            />
+          }
+        />
         <Route path="/depth" element={<DepthCharts />} />
         {/* <Route path="/matchup" element={<MatchUps />} /> */}
       </Routes>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { TableRow, TableCell } from "@mui/material";
+import { TableRow, TableCell, Button } from "@mui/material";
 import SelectionList from "./SelectionList";
 import teams from "../scrapedData/teams.json";
 import SelectionListMultiple from "./SelectionListMultiple";
@@ -17,6 +17,7 @@ export default function DefaultFilters({
   onPredMinutesChange,
   currentTeam,
   seasonsLoading = false,
+  onPredMinutesToggle,
 }) {
   const [opponent, setOpponent] = useState("");
   const [market, setMarket] = useState("");
@@ -87,12 +88,15 @@ export default function DefaultFilters({
   return (
     <TableRow
       sx={{
-        "&:last-child td, &:last-child th": { border: 0 },
-        backgroundColor: "#dfe9e5",
+        "&:last-child td, &:last-child th": {
+          borderWidth: 0,
+          borderBottomWidth: "2px",
+          borderColor: "#34acff33",
+        },
       }}
     >
-      <TableCell component="th" scope="row"></TableCell>
-      <TableCell>
+      <TableCell style={{ top: 55 }} component="th" scope="row"></TableCell>
+      <TableCell style={{ top: 55 }}>
         <SelectionList
           value={team}
           onChange={handleTeamSelect}
@@ -100,7 +104,7 @@ export default function DefaultFilters({
           dense
         />
       </TableCell>
-      <TableCell>
+      <TableCell style={{ top: 55 }}>
         <SelectionList
           value={market}
           onChange={handleMarketSelect}
@@ -108,18 +112,35 @@ export default function DefaultFilters({
           dense
         />
       </TableCell>
-      <TableCell></TableCell>
-      <TableCell>
-        <SelectionListMultiple
-          value={season}
-          onChange={handleSeasonSelect}
-          list={seasons}
-          disabled={seasonsLoading}
-          dense
-        />
+      <TableCell style={{ top: 55 }}></TableCell>
+      <TableCell style={{ top: 55 }}></TableCell>
+      <TableCell style={{ top: 55 }}>
+        <div style={{ display: "flex" }}>
+          <Button
+            size="small"
+            variant="text"
+            color="info"
+            sx={{ fontWeight: 600, marginLeft: "5px" }}
+            onClick={() => {
+              onPredMinutesToggle("saved");
+            }}
+          >
+            Saved
+          </Button>
+          <Button
+            size="small"
+            variant="text"
+            color="error"
+            sx={{ fontWeight: 600 }}
+            onClick={() => {
+              onPredMinutesToggle("depth");
+            }}
+          >
+            Depth
+          </Button>
+        </div>
       </TableCell>
-      <TableCell></TableCell>
-      <TableCell>
+      <TableCell style={{ top: 55 }}>
         <SelectionList
           value={extraMarket}
           onChange={handleExtraMarketSelect}
@@ -127,10 +148,10 @@ export default function DefaultFilters({
           dense
         />{" "}
       </TableCell>
-      <TableCell></TableCell>
-      <TableCell></TableCell>
-      <TableCell></TableCell>
-      <TableCell>
+      <TableCell style={{ top: 55 }}></TableCell>
+      <TableCell style={{ top: 55 }}></TableCell>
+      <TableCell style={{ top: 55 }}></TableCell>
+      <TableCell style={{ top: 55 }}>
         <SelectionListMultiple
           value={matchUpValueSeason}
           onChange={handleMatchUpValueSeasonSelect}
@@ -139,10 +160,10 @@ export default function DefaultFilters({
           dense
         />
       </TableCell>
-      <TableCell></TableCell>
-      <TableCell></TableCell>
-      <TableCell></TableCell>
-      <TableCell></TableCell>
+      <TableCell style={{ top: 55 }}></TableCell>
+      <TableCell style={{ top: 55 }}></TableCell>
+      <TableCell style={{ top: 55 }}></TableCell>
+      <TableCell style={{ top: 55 }}></TableCell>
     </TableRow>
   );
 }

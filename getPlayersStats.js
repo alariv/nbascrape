@@ -15,15 +15,25 @@ export async function getPlayersStats(teams, baseUrl) {
             counter += 1;
             if (!body || typeof body !== "string") return;
             let $ = cheerio.load(body);
-            let rows = $("#per_game").find("tr");
+            let rows = $("table").eq(0).find("tbody tr.per_game");
+            console.log(
+              "asking player",
+              player,
+              " data. rows len",
+              rows.length
+            );
             let playerData = {};
             $(rows).each(function (i, row) {
-              if ($(row).find("th[data-stat=season]").find("a").attr("href")) {
-                playerData[$(row).find("th[data-stat=season]").text()] = {
-                  link: $(row)
-                    .find("th[data-stat=season]")
-                    .find("a")
-                    .attr("href"),
+              if ($(row).find("td").eq(0).text()) {
+                playerData[$(row).find("td").eq(0).text().split(" ")[0]] = {
+                  link:
+                    baseUrl +
+                    teams[team].players[player].link.replace(
+                      "Summary",
+                      "GameLogs"
+                    ) +
+                    "/NBA/20" +
+                    $(row).find("td").eq(0).text().split("-")[1].split(" ")[0],
                 };
               }
             });
@@ -32,8 +42,67 @@ export async function getPlayersStats(teams, baseUrl) {
               playerData: playerData,
             };
             if (counter == Object.keys(teams[team].players).length) {
-              console.log("resolving - all players data collected");
-              resolve(teams);
+              if (
+                Object.keys(teams[team]?.previousSeasonPlayers || {}).length
+              ) {
+                Object.keys(teams[team].previousSeasonPlayers).map(
+                  (player, idx) => {
+                    request(
+                      {
+                        method: "GET",
+                        url:
+                          baseUrl +
+                          teams[team].previousSeasonPlayers[player].link,
+                      },
+                      (err, response, body) => {
+                        counter += 1;
+                        if (!body || typeof body !== "string") return;
+                        let $ = cheerio.load(body);
+                        let rows = $("table").eq(0).find("tbody tr.per_game");
+                        let playerData = {};
+                        $(rows).each(function (i, row) {
+                          if ($(row).find("td").eq(0).text()) {
+                            playerData[
+                              $(row).find("td").eq(0).text().split(" ")[0]
+                            ] = {
+                              link:
+                                baseUrl +
+                                teams[team].previousSeasonPlayers[
+                                  player
+                                ].link.replace("Summary", "GameLogs") +
+                                "/NBA/20" +
+                                $(row)
+                                  .find("td")
+                                  .eq(0)
+                                  .text()
+                                  .split("-")[1]
+                                  .split(" ")[0],
+                            };
+                          }
+                        });
+                        teams[team].previousSeasonPlayers[player] = {
+                          ...teams[team].previousSeasonPlayers[player],
+                          playerData: playerData,
+                        };
+                        if (
+                          counter ==
+                          Object.keys(teams[team].players).concat(
+                            Object.keys(teams[team].previousSeasonPlayers)
+                          ).length
+                        ) {
+                          console.log(
+                            "resolving - all players and previousSeasonPlayers data collected"
+                          );
+                          resolve(teams);
+                        }
+                      }
+                    );
+                  }
+                );
+              } else {
+                console.log("resolving - all players data collected");
+                resolve(teams);
+              }
             }
           }
         );

@@ -1,7 +1,7 @@
 import cheerio from "cheerio";
 import request from "request";
 
-export async function getLeagueStats(url) {
+export async function getLeagueStats(url, teams) {
   const years = [
     (new Date().getFullYear() - 2).toString(),
     (new Date().getFullYear() - 1).toString(),
@@ -12,106 +12,70 @@ export async function getLeagueStats(url) {
   let counter = 0;
   return new Promise((resolve) => {
     Object.keys(years).map((year, idx) => {
-      request(
-        {
-          method: "GET",
-          url: url.replace("{{year}}", years[idx]),
-        },
-        (err, response, body) => {
-          counter += 1;
+      Object.keys(teams).map((team, teamIndex) => {
+        request(
+          {
+            method: "GET",
+            url: url
+              .replace("{{year}}", years[idx])
+              .replace("{{teamShort}}", teams[team].teamShort)
+              .replace("{{teamNumber}}", teams[team].teamNumber),
+          },
+          (err, response, body) => {
+            counter += 1;
 
-          let $ = cheerio.load(body);
+            let $ = cheerio.load(body);
 
-          let rows = $("#totals-opponent").find("tr");
+            let rows = $("table").find('td[rel="Opponent Totals"]');
+            // console.log("got row?", !!rows.length);
 
-          teamsStats[years[idx]] = {};
-          $(rows).each(function (i, row) {
+            teamsStats[years[idx]] = { ...teamsStats[years[idx]] };
+            $(rows).each(function (i, row) {
+              if ($(row).parent().find("td").length) {
+                teamsStats[years[idx]][team] = {
+                  g: $(row).parent().find("td").eq(1).text(),
+                  mp: $(row).parent().find("td").eq(2).text(),
+                  fg: $(row).parent().find("td").eq(4).text(),
+                  fga: $(row).parent().find("td").eq(5).text(),
+                  fg_pct: $(row).parent().find("td").eq(6).text(),
+                  fg3: $(row).parent().find("td").eq(7).text(),
+                  fg3a: $(row).parent().find("td").eq(8).text(),
+                  fg3_pct: $(row).parent().find("td").eq(9).text(),
+                  fg2: $(row).parent().find("td").eq(10).text(),
+                  fg2a: $(row).parent().find("td").eq(11).text(),
+                  fg2_pct: $(row).parent().find("td").eq(12).text(),
+                  ft: $(row).parent().find("td").eq(10).text(),
+                  fta: $(row).parent().find("td").eq(11).text(),
+                  ft_pct: $(row).parent().find("td").eq(12).text(),
+                  orb: $(row).parent().find("td").eq(13).text(),
+                  drb: $(row).parent().find("td").eq(14).text(),
+                  trb: $(row).parent().find("td").eq(15).text(),
+                  ast: $(row).parent().find("td").eq(16).text(),
+                  stl: $(row).parent().find("td").eq(17).text(),
+                  blk: $(row).parent().find("td").eq(18).text(),
+                  tov: $(row).parent().find("td").eq(20).text(),
+                  pf: $(row).parent().find("td").eq(19).text(),
+                  pts: $(row).parent().find("td").eq(3).text(),
+                };
+              }
+            });
+
             if (
-              $(row).find("td[data-stat=team]").find("a").text() ||
-              $(row).find("td[data-stat=team]").text()
+              counter ==
+              Object.keys(years).length * Object.keys(teams).length
             ) {
-              teamsStats[years[idx]][
-                $(row).find("td[data-stat=team]").find("a").text() ||
-                  $(row).find("td[data-stat=team]").text()
-              ] = {
-                g:
-                  $(row).find("td[data-stat=g]").text() ||
-                  $(row).find("td[data-stat=g]").text(),
-                mp:
-                  $(row).find("td[data-stat=mp]").text() ||
-                  $(row).find("td[data-stat=mp]").text(),
-                fg:
-                  $(row).find("td[data-stat=opp_fg]").text() ||
-                  $(row).find("td[data-stat=fg]").text(),
-                fga:
-                  $(row).find("td[data-stat=opp_fga]").text() ||
-                  $(row).find("td[data-stat=fga]").text(),
-                fg_pct:
-                  $(row).find("td[data-stat=opp_fg_pct]").text() ||
-                  $(row).find("td[data-stat=fg_pct]").text(),
-                fg3:
-                  $(row).find("td[data-stat=opp_fg3]").text() ||
-                  $(row).find("td[data-stat=fg3]").text(),
-                fg3a:
-                  $(row).find("td[data-stat=opp_fg3a]").text() ||
-                  $(row).find("td[data-stat=fg3a]").text(),
-                fg3_pct:
-                  $(row).find("td[data-stat=opp_fg3_pct]").text() ||
-                  $(row).find("td[data-stat=fg3_pct]").text(),
-                fg2:
-                  $(row).find("td[data-stat=opp_fg2]").text() ||
-                  $(row).find("td[data-stat=fg2]").text(),
-                fg2a:
-                  $(row).find("td[data-stat=opp_fg2a]").text() ||
-                  $(row).find("td[data-stat=fg2a]").text(),
-                fg2_pct:
-                  $(row).find("td[data-stat=opp_fg2_pct]").text() ||
-                  $(row).find("td[data-stat=fg2_pct]").text(),
-                ft:
-                  $(row).find("td[data-stat=opp_ft]").text() ||
-                  $(row).find("td[data-stat=ft]").text(),
-                fta:
-                  $(row).find("td[data-stat=opp_fta]").text() ||
-                  $(row).find("td[data-stat=fta]").text(),
-                ft_pct:
-                  $(row).find("td[data-stat=opp_ft_pct]").text() ||
-                  $(row).find("td[data-stat=ft_pct]").text(),
-                orb:
-                  $(row).find("td[data-stat=opp_orb]").text() ||
-                  $(row).find("td[data-stat=orb]").text(),
-                drb:
-                  $(row).find("td[data-stat=opp_drb]").text() ||
-                  $(row).find("td[data-stat=drb]").text(),
-                trb:
-                  $(row).find("td[data-stat=opp_trb]").text() ||
-                  $(row).find("td[data-stat=trb]").text(),
-                ast:
-                  $(row).find("td[data-stat=opp_ast]").text() ||
-                  $(row).find("td[data-stat=ast]").text(),
-                stl:
-                  $(row).find("td[data-stat=opp_stl]").text() ||
-                  $(row).find("td[data-stat=stl]").text(),
-                blk:
-                  $(row).find("td[data-stat=opp_blk]").text() ||
-                  $(row).find("td[data-stat=blk]").text(),
-                tov:
-                  $(row).find("td[data-stat=opp_tov]").text() ||
-                  $(row).find("td[data-stat=tov]").text(),
-                pf:
-                  $(row).find("td[data-stat=opp_pf]").text() ||
-                  $(row).find("td[data-stat=pf]").text(),
-                pts:
-                  $(row).find("td[data-stat=opp_pts]").text() ||
-                  $(row).find("td[data-stat=pts]").text(),
-              };
+              resolve(teamsStats);
+            } else {
+              // console.log(
+              //   "not resolving, counter:",
+              //   counter,
+              //   "/",
+              //   Object.keys(years).length * Object.keys(teams).length
+              // );
             }
-          });
-
-          if (counter == Object.keys(years).length) {
-            resolve(teamsStats);
           }
-        }
-      );
+        );
+      });
     });
   });
 }

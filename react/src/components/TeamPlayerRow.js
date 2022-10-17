@@ -30,6 +30,8 @@ export default function TeamPlayerRow({
   playerSeasons,
   teamPlayersData = {},
   defaultMatchUpValueSeason,
+  onPredMinutesToggle = () => {},
+  predMinutesToggleState = "depth",
 }) {
   const [market, setMarket] = useState("");
   const [extraMarket, setExtraMarket] = useState("");
@@ -37,7 +39,7 @@ export default function TeamPlayerRow({
   const [season, setSeason] = useState([]);
   const [predMinutes, setPredMinutes] = useState("");
   const [extraLine, setExtraLine] = useState("");
-  const [selectedWplayer, setWplayer] = useState("");
+  const [selectedWplayer, setWplayer] = useState([""]);
   const [lastTeam, setLastTeam] = useState("");
   const [wPlayers, setWplayers] = useState(makeWplayersList());
   const [calculatedMatchUpValue, setCalculatedMatchUpValue] = useState("-");
@@ -47,8 +49,8 @@ export default function TeamPlayerRow({
     filterValue: "10",
   });
   const [extraLineFilter, setExtraLineFilter] = useState({
-    filter: "over",
-    filterValue: "10",
+    filter: "",
+    filterValue: "",
   });
   const [totalGames, setTotalGames] = useState(0);
   const [totalOver, setTotalOver] = useState(0);
@@ -58,9 +60,53 @@ export default function TeamPlayerRow({
   const [bookieOdds, setBookieOdds] = useState({ under: 0, over: 0 });
   const [unitSize, setUnitSize] = useState({ under: 0, over: 0 });
 
+  useEffect(() => {
+    if (team && team !== lastTeam) {
+      setWplayer([""]);
+      setWplayers(makeWplayersList());
+      setLastTeam(team);
+      setMarket("");
+      setExtraMarket("");
+      setLine("");
+      setSeason([]);
+      setPredMinutes("");
+      setExtraLine("");
+      setPredMinutesFilter({
+        filter: "+-",
+        filterValue: "10",
+      });
+      setExtraLineFilter({
+        filter: "",
+        filterValue: "",
+      });
+      setTotalGames(0);
+      setTotalOver(0);
+      setTotalUnder(0);
+      setTotalOverP("0");
+      setTotalUnderP("0");
+      setBookieOdds({ under: 0, over: 0 });
+      setUnitSize({ under: 0, over: 0 });
+    }
+  }, [team]);
+
+  useEffect(() => {
+    //do something
+    if (predMinutesToggleState == "saved") {
+      console.log("predMinutesToggleState is SAVED");
+      !!market && handleMarketSelect(market);
+    } else {
+      console.log("predMinutesToggleState changed to", predMinutesToggleState);
+      handleDepthData();
+    }
+  }, [predMinutesToggleState]);
+
   function makeWplayersList() {
+    // console.log("making wplist");
+    // console.log(teams[team].previousSeasonPlayers);
     let list = [];
-    let teamPlayersArr = Object.keys(teams[team].players);
+    let teamPlayersArr = Object.keys(teams[team].players).concat(
+      Object.keys(teams[team].previousSeasonPlayers)
+    );
     teamPlayersArr.forEach((thisPlayer) => {
       if (player != thisPlayer) {
         list.push("+ " + thisPlayer);
@@ -71,26 +117,20 @@ export default function TeamPlayerRow({
   }
 
   useEffect(() => {
-    if (team && team !== lastTeam) {
-      setWplayer("");
-      setWplayers(makeWplayersList());
-      setLastTeam(team);
-    }
-  }, [team]);
-
-  useEffect(() => {
     if (opponent) {
       setMatchUpValue("");
     }
   }, [opponent, team]);
 
   useEffect(() => {
+    console.log("suur useEffect");
     if (Object.keys(teamPlayersData).length) {
       const totalGames = findTotalGames(teamPlayersData);
       setTotalGames(Object.keys(teamPlayersData).length ? totalGames.total : 0);
       setTotalOver(Object.keys(teamPlayersData).length ? totalGames.over : 0);
       setTotalUnder(Object.keys(teamPlayersData).length ? totalGames.under : 0);
 
+      console.log(totalGames);
       let justcalculatedMatchupValue;
 
       let opponentDataSum = 0;
@@ -99,6 +139,11 @@ export default function TeamPlayerRow({
       if (opponent && leaguesData && defaultMatchUpValueSeason) {
         defaultMatchUpValueSeason.forEach((season) => {
           if (
+            Object.keys(
+              leaguesData[
+                season.split("-")[0].substr(0, 2) + season.split("-")[1]
+              ]
+            ).length &&
             leaguesData[
               season.split("-")[0].substr(0, 2) + season.split("-")[1]
             ][opponent][leagueStatsMap[market ? market : selectedMarket]] &&
@@ -231,8 +276,20 @@ export default function TeamPlayerRow({
     let underGames = [];
     if (player) {
       playerMatchingSeasons = Object.keys(list.players).includes(player)
-        ? Object.keys(list.players[player].playerData).filter((currentSeason) =>
-            (season.length ? season : defaultSeason).includes(currentSeason)
+        ? Object.keys(list.players[player].playerData).filter(
+            (currentSeason) => {
+              console.log(
+                "currentseason:",
+                currentSeason,
+                "season.length:",
+                season.length
+              );
+              return (
+                (season.length ? season : defaultSeason).includes(
+                  currentSeason
+                ) && season
+              );
+            }
           )
         : console.log("could not find player", player);
 
@@ -241,11 +298,14 @@ export default function TeamPlayerRow({
           ? Object.keys(list.players[player]?.playerData[matchedSeason]?.data)
           : []
         ).forEach((game) => {
+          console.log("forEach game", game);
           games.push(
             list.players[player]?.playerData[matchedSeason]?.data[game]
           );
         });
       });
+
+      console.log("games:", games.length);
 
       games = games.filter((game) => {
         const minValue =
@@ -281,59 +341,127 @@ export default function TeamPlayerRow({
             : parseInt(game[marketMapping[extraMarketToSearch]]) <
                 parseFloat(extraLineFilter.filterValue);
         });
+
+        console.log("GAMES:");
+        console.log(games);
       }
 
-      let wwoPlayerName = selectedWplayer.substring(2, selectedWplayer.length);
-      let wwoPlayerPrefix = selectedWplayer.substring(0, 1);
+      console.log("games before massive foreach:", games.length);
+      selectedWplayer.forEach((thisSelectedWplayer) => {
+        let wwoPlayerName = thisSelectedWplayer.substring(
+          2,
+          thisSelectedWplayer.length
+        );
+        let wwoPlayerPrefix = thisSelectedWplayer.substring(0, 1);
 
-      let wwoPlayerGameDates = [];
-      let matchingGameDates = [];
+        let wwoPlayerGameDates = [];
+        let matchingGameDates = [];
 
-      let seasonToSearch = season.length ? season : defaultSeason;
-      if (wwoPlayerName.length && wwoPlayerPrefix.length) {
-        seasonToSearch.forEach((currentSeason) => {
-          Object.keys(list.players).forEach((thisPlayer, index) => {
-            if (thisPlayer == wwoPlayerName) {
-              if (list.players[wwoPlayerName].playerData[currentSeason]) {
-                Object.keys(
+        let seasonToSearch = season.length ? season : defaultSeason;
+        if (wwoPlayerName.length && wwoPlayerPrefix.length) {
+          seasonToSearch.forEach((currentSeason) => {
+            console.log("searching season", currentSeason);
+            Object.keys(list.players).forEach((thisPlayer, index) => {
+              if (thisPlayer == wwoPlayerName) {
+                console.log("found wwoPlayer", wwoPlayerName);
+                if (
+                  Object.keys(list.players).includes(wwoPlayerName) &&
+                  list.players[wwoPlayerName].playerData[currentSeason] &&
                   list.players[wwoPlayerName].playerData[currentSeason].data
-                ).forEach((wwoPlayerGame) => {
-                  wwoPlayerGameDates.push(
-                    list.players[wwoPlayerName].playerData[currentSeason].data[
-                      wwoPlayerGame
-                    ].date
-                  );
-                });
-              }
-              if (list.players[player].playerData[currentSeason]) {
-                Object.keys(
-                  list.players[player].playerData[currentSeason].data
-                ).forEach((currentPlayerGame) => {
-                  wwoPlayerGameDates.includes(
-                    list.players[player].playerData[currentSeason].data[
-                      currentPlayerGame
-                    ].date
-                  )
-                    ? wwoPlayerPrefix == "+" &&
-                      matchingGameDates.push(
-                        list.players[player].playerData[currentSeason].data[
-                          currentPlayerGame
-                        ].date
-                      )
-                    : wwoPlayerPrefix == "-" &&
-                      matchingGameDates.push(
-                        list.players[player].playerData[currentSeason].data[
-                          currentPlayerGame
-                        ].date
+                ) {
+                  console.log("millegiprast leidsin tiimilistist");
+                  Object.keys(
+                    list.players[wwoPlayerName].playerData[currentSeason].data
+                  ).forEach((wwoPlayerGame) => {
+                    console.log("wwoPlayerGame", wwoPlayerGame);
+                    if (
+                      list.players[wwoPlayerName].playerData[currentSeason]
+                        .data[wwoPlayerGame].team == teams[team].teamShort
+                    ) {
+                      wwoPlayerGameDates.push(
+                        list.players[wwoPlayerName].playerData[currentSeason]
+                          .data[wwoPlayerGame].date
                       );
-                });
-              }
-            }
-          });
-        });
+                    }
+                  });
+                } else if (
+                  Object.keys(list.previousSeasonPlayers).includes(
+                    wwoPlayerName
+                  ) &&
+                  list.previousSeasonPlayers[wwoPlayerName].playerData[
+                    currentSeason
+                  ] &&
+                  list.previousSeasonPlayers[wwoPlayerName].playerData[
+                    currentSeason
+                  ].data
+                ) {
+                  /////
+                  console.log(
+                    "leidsin",
+                    wwoPlayerName,
+                    "previousSeasonPlayers listist"
+                  );
+                  ////
+                  Object.keys(
+                    list.previousSeasonPlayers[wwoPlayerName].playerData[
+                      currentSeason
+                    ].data
+                  ).forEach((wwoPlayerGame) => {
+                    if (
+                      list.previousSeasonPlayers[wwoPlayerName].playerData[
+                        currentSeason
+                      ].data[wwoPlayerGame].team == teams[team].teamShort
+                    ) {
+                      wwoPlayerGameDates.push(
+                        list.previousSeasonPlayers[wwoPlayerName].playerData[
+                          currentSeason
+                        ].data[wwoPlayerGame].date
+                      );
+                    }
+                  });
+                  ////
 
-        games = games.filter((game) => matchingGameDates.includes(game.date));
-      }
+                  /////
+                } else {
+                  console.log(
+                    "ei leidnud kummastki listist seda venda:",
+                    wwoPlayerName
+                  );
+                }
+                if (
+                  list.players[player].playerData[currentSeason] &&
+                  list.players[player].playerData[currentSeason].data
+                ) {
+                  Object.keys(
+                    list.players[player].playerData[currentSeason].data
+                  ).forEach((currentPlayerGame) => {
+                    wwoPlayerGameDates.includes(
+                      list.players[player].playerData[currentSeason].data[
+                        currentPlayerGame
+                      ].date
+                    )
+                      ? wwoPlayerPrefix == "+" &&
+                        matchingGameDates.push(
+                          list.players[player].playerData[currentSeason].data[
+                            currentPlayerGame
+                          ].date
+                        )
+                      : wwoPlayerPrefix == "-" &&
+                        matchingGameDates.push(
+                          list.players[player].playerData[currentSeason].data[
+                            currentPlayerGame
+                          ].date
+                        );
+                  });
+                }
+              }
+            });
+          });
+
+          games = games.filter((game) => matchingGameDates.includes(game.date));
+        }
+      });
+      console.log("games after filter:", games.length);
 
       overGames = games.filter((game) => {
         return (
@@ -410,7 +538,7 @@ export default function TeamPlayerRow({
           ":" +
           (predMinutes ? predMinutes : defaultPredMinutes)
         : predMinutesFilter.filter +
-          ":" +
+          "::" +
           (predMinutes ? predMinutes : defaultPredMinutes);
 
     const saveObj = {
@@ -437,6 +565,10 @@ export default function TeamPlayerRow({
   };
 
   useEffect(() => {
+    handleDepthData();
+  }, []);
+
+  function handleDepthData() {
     let depthData = window.localStorage.getItem("depthData")
       ? JSON.parse(window.localStorage.getItem("depthData"))
       : [];
@@ -449,7 +581,7 @@ export default function TeamPlayerRow({
         });
       });
     }
-  }, []);
+  }
 
   const markets = {
     "3P": "3P",
@@ -555,7 +687,7 @@ export default function TeamPlayerRow({
   };
 
   const handleWPlayerChange = (wPlayer) => {
-    setWplayer(wPlayer);
+    setWplayer(typeof wPlayer === "string" ? wPlayer.split(",") : wPlayer);
   };
 
   const handleBookieOddsChange = (odds, direction) => {
@@ -577,6 +709,7 @@ export default function TeamPlayerRow({
           currentTeam={team}
           seasonsLoading={seasonsLoading}
           onMatchUpValueSeasonChange={handleMatchUpValueSeasonChange}
+          onPredMinutesToggle={onPredMinutesToggle}
         />
       ) : (
         <TableRow
@@ -705,7 +838,7 @@ export default function TeamPlayerRow({
                     filterValue: extraLineFilter.filterValue,
                   });
                 }}
-                list={["over", "under"]}
+                list={["", "over", "under"]}
                 dense
               />
 
@@ -724,10 +857,16 @@ export default function TeamPlayerRow({
           </TableCell>
           {/* +- PLAYER */}
           <TableCell className={"wwoplayer"}>
-            <SelectionList
+            {/* <SelectionList
               value={selectedWplayer}
               onChange={handleWPlayerChange}
               list={[""].concat(wPlayers)}
+              dense
+            /> */}
+            <SelectionListMultiple
+              value={selectedWplayer}
+              onChange={handleWPlayerChange}
+              list={wPlayers}
               dense
             />
           </TableCell>
