@@ -12,6 +12,7 @@ import { calculateUnitSize } from "./calculate.js";
 import { getTeamsShorts } from "./getTeamsShorts.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import { fail } from "assert";
 
 var app = express();
 const appserver = http.createServer(app);
@@ -290,10 +291,27 @@ app.post("/updatePlayersStats/:team", async (req, res) => {
   try {
     updatePlayersStats(team, teams, res).then((data) => {
       console.log("playerSeasons updated");
-      console.log(data[team].players["Jimmy Butler"]);
+      // console.log(data[team].players["Jimmy Butler"]);
       updatePlayersSeasonStats(data, team).then((data) => {
         console.log("players seasons data fetched");
-        res.send(JSON.stringify(data));
+        // res.send(JSON.stringify(data));
+        updatePreviousPlayersSeasonStats(data, team).then((alldata) => {
+          console.log("previous season players seasons data fetched");
+          fs.writeFile(
+            "react/src/scrapedData/test.json",
+            JSON.stringify(data),
+            function (err, data) {
+              if (!err) {
+                console.log("succesfully wrote test.json file");
+                return;
+              } else {
+                console.log(err);
+                return;
+              }
+            }
+          );
+          res.send(JSON.stringify(alldata));
+        });
       });
     });
   } catch (err) {
@@ -339,21 +357,11 @@ const updatePlayersSeasonStats = (test, teamName) => {
           }
         });
     });
-    Object.keys(test[teamName].previousSeasonPlayers).forEach((player) => {
-      Object.keys(test[teamName].previousSeasonPlayers[player].playerData)
-        .reverse()
-        .forEach((season, index) => {
-          if (index < maxSeasons) {
-            seasonsToFetchCount += 1;
-            console.log(season, index);
-          }
-        });
-    });
     console.log("seasons to fetch count:", seasonsToFetchCount);
 
     var seasonCounter = 0;
     let requestedPlayers = [];
-    Object.keys(test[teamName].players).map((player) => {
+    Object.keys(test[teamName].players).map((player, playerIdx) => {
       console.log("in map, player:", player);
       console.log(test[teamName].players[player]);
       playerCounter += 1;
@@ -376,7 +384,7 @@ const updatePlayersSeasonStats = (test, teamName) => {
                 playerCounter = requestedPlayers.length;
                 if (!body || typeof body !== "string") return;
                 let $ = cheerio.load(body);
-                let rows = $("table").eq(0).find("tbody tr");
+                let rows = $(".main-container table").eq(0).find("tbody tr");
                 let playerData = {};
                 $(rows).each(function (i, row) {
                   if ($(row).find("td a").eq(0).text().length) {
@@ -409,59 +417,14 @@ const updatePlayersSeasonStats = (test, teamName) => {
                   ...test[teamName].players[player].playerData[playerSeason],
                   data: playerData,
                 };
-              }
-            );
-          }
-        });
-    });
-    Object.keys(test[teamName].previousSeasonPlayers).map((player) => {
-      console.log("in map, previousSeasonPlayer:", player);
-      console.log(test[teamName].players[player]);
-      playerCounter += 1;
 
-      Object.keys(test[teamName].previousSeasonPlayers[player].playerData)
-        .reverse()
-        .map((playerSeason, idx) => {
-          if (idx < maxSeasons) {
-            console.log("in playerData map", playerSeason);
-            request(
-              {
-                method: "GET",
-                url: test[teamName].previousSeasonPlayers[player].playerData[
-                  playerSeason
-                ].link,
-              },
-              (err, response, body) => {
-                seasonCounter += 1;
-                !requestedPlayers.includes(player) &&
-                  requestedPlayers.push(player);
-                playerCounter = requestedPlayers.length;
-                if (!body || typeof body !== "string") return;
-                let $ = cheerio.load(body);
-                let rows = $("table").eq(0).find("tbody tr");
-                let playerData = {};
-                $(rows).each(function (i, row) {
-                  if ($(row).find("td a").eq(0).text().length) {
-                    playerData[i] = {
-                      date: $(row).find("td a").eq(0).text(),
-                    };
-                  }
-                });
-                test[teamName].previousSeasonPlayers[player].playerData[
-                  playerSeason
-                ] = {
-                  ...test[teamName].previousSeasonPlayers[player].playerData[
-                    playerSeason
-                  ],
-                  data: playerData,
-                };
-                if (seasonCounter + 1 == seasonsToFetchCount) {
+                if ((seasonCounter ) >= seasonsToFetchCount) {
                   console.log("resolving");
                   resolve(test);
                 } else {
                   console.log(
                     "not resolving:",
-                    seasonCounter,
+                    (seasonCounter ),
                     "/",
                     seasonsToFetchCount
                   );
@@ -470,9 +433,106 @@ const updatePlayersSeasonStats = (test, teamName) => {
             );
           }
         });
+        if(playerIdx >= Object.keys(test[teamName].players).length -1){
+          console.log('FINISHED PLAYERS');
+
+
+        }
     });
+    
   });
 };
+
+const updatePreviousPlayersSeasonStats = (test, teamName) =>{
+  
+  console.log("updating previous season players season stats");
+  return new Promise((resolve) => {
+    let playerCounter = 0;
+    const playersCount = Object.keys(test[teamName].previousSeasonPlayers).length;
+
+    const maxSeasons = 6;
+    console.log("players to fetch count:", playersCount);
+    let seasonsToFetchCount = 0;
+   
+    Object.keys(test[teamName].previousSeasonPlayers).forEach((player) => {
+      Object.keys(test[teamName].previousSeasonPlayers[player].playerData)
+        .reverse()
+        .forEach((season, index) => {
+          if (index < maxSeasons) {
+            seasonsToFetchCount += 1;
+            console.log(season, index);
+          }
+        });
+    });
+    console.log("seasons to fetch count:", seasonsToFetchCount);
+
+    var seasonCounter = 0;
+    let requestedPlayers = [];
+  
+  Object.keys(test[teamName].previousSeasonPlayers).map((player) => {
+    console.log("in map, previousSeasonPlayer:", player);
+    console.log(test[teamName].players[player]);
+    playerCounter += 1;
+
+    Object.keys(test[teamName].previousSeasonPlayers[player].playerData)
+      .reverse()
+      .map((playerSeason, idx) => {
+        if (idx < maxSeasons) {
+          console.log("in playerData map", playerSeason);
+          request(
+            {
+              method: "GET",
+              url: test[teamName].previousSeasonPlayers[player].playerData[
+                playerSeason
+              ].link,
+            },
+            (err, response, body) => {
+              seasonCounter = seasonCounter + 1;
+              console.log('seasoncounter is now:',seasonCounter);
+              !requestedPlayers.includes(player) &&
+                requestedPlayers.push(player);
+              playerCounter = requestedPlayers.length;
+              if (!body || typeof body !== "string") return;
+              let $ = cheerio.load(body);
+              let rows = $(".main-container table").eq(0).find("tbody tr");
+              let playerData = {};
+              $(rows).each(function (i, row) {
+                if ($(row).find("td a").eq(0).text().length) {
+                  playerData[i] = {
+                    date: $(row).find("td a").eq(0).text(),
+                  };
+                }
+              });
+              test[teamName].previousSeasonPlayers[player].playerData[
+                playerSeason
+              ] = {
+                ...test[teamName].previousSeasonPlayers[player].playerData[
+                  playerSeason
+                ],
+                data: playerData,
+              };
+
+              if ((seasonCounter ) >= seasonsToFetchCount) {
+                console.log("resolving");
+                resolve(test);
+              } else {
+                console.log(
+                  "not resolving:",
+                  (seasonCounter),
+                  "/",
+                  seasonsToFetchCount
+                );
+              }
+              
+            }
+          )
+        }else{console.log('fell here',idx,maxSeasons,(idx < maxSeasons));}
+      });
+  });
+
+    
+  });
+}
 
 const updatePlayersStats = (team, teams, res) => {
   let teamObj = { [team]: teams[team] };

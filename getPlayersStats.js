@@ -6,6 +6,7 @@ export async function getPlayersStats(teams, baseUrl) {
   return new Promise((resolve) => {
     Object.keys(teams).map((team, idx) => {
       Object.keys(teams[team].players).map((player, idx) => {
+
         request(
           {
             method: "GET",
@@ -15,16 +16,19 @@ export async function getPlayersStats(teams, baseUrl) {
             counter += 1;
             if (!body || typeof body !== "string") return;
             let $ = cheerio.load(body);
-            let rows = $("table").eq(0).find("tbody tr.per_game");
+            // console.log(response);
+            let rows = $(".main-container table").eq(0).find("tbody tr.per_game");
             console.log(
               "asking player",
               player,
               " data. rows len",
-              rows.length
+              rows.length,'link:',baseUrl + teams[team].players[player].link
             );
             let playerData = {};
             $(rows).each(function (i, row) {
               if ($(row).find("td").eq(0).text()) {
+                
+            console.log($(row).find("td").eq(0).text());
                 playerData[$(row).find("td").eq(0).text().split(" ")[0]] = {
                   link:
                     baseUrl +
@@ -58,7 +62,7 @@ export async function getPlayersStats(teams, baseUrl) {
                         counter += 1;
                         if (!body || typeof body !== "string") return;
                         let $ = cheerio.load(body);
-                        let rows = $("table").eq(0).find("tbody tr.per_game");
+                        let rows = $(".main-container table").eq(0).find("tbody tr.per_game");
                         let playerData = {};
                         $(rows).each(function (i, row) {
                           if ($(row).find("td").eq(0).text()) {
