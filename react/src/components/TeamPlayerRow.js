@@ -133,6 +133,7 @@ export default function TeamPlayerRow({
       console.log(totalGames);
       let justcalculatedMatchupValue;
 
+      console.log("MUV calculation");
       let opponentDataSum = 0;
       let leagueDataSum = 0;
       let divider = 0;
@@ -153,14 +154,34 @@ export default function TeamPlayerRow({
               leagueStatsMap[market ? market : selectedMarket]
             ]
           ) {
+            console.log(leagueStatsMap[market ? market : selectedMarket]);
+            console.log(opponent);
+            console.log(
+              leaguesData[
+                season.split("-")[0].substr(0, 2) + season.split("-")[1]
+              ][opponent]
+            );
+            console.log("======");
+            console.log(
+              leaguesData[
+                season.split("-")[0].substr(0, 2) + season.split("-")[1]
+              ][opponent][leagueStatsMap[market ? market : selectedMarket]]
+            );
+            console.log(
+              leaguesData[
+                season.split("-")[0].substr(0, 2) + season.split("-")[1]
+              ]["League Average"][
+                leagueStatsMap[market ? market : selectedMarket]
+              ]
+            );
             divider += 1;
-            opponentDataSum += parseInt(
+            opponentDataSum += parseFloat(
               leaguesData[
                 season.split("-")[0].substr(0, 2) + season.split("-")[1]
               ][opponent][leagueStatsMap[market ? market : selectedMarket]]
             );
 
-            leagueDataSum += parseInt(
+            leagueDataSum += parseFloat(
               leaguesData[
                 season.split("-")[0].substr(0, 2) + season.split("-")[1]
               ]["League Average"][
@@ -171,6 +192,8 @@ export default function TeamPlayerRow({
         });
       }
 
+      console.log("opponentDataSum =", opponentDataSum, "/", divider);
+      console.log("leagueDataSum =", leagueDataSum, "/", divider);
       opponentDataSum = opponentDataSum / divider;
       leagueDataSum = leagueDataSum / divider;
 
@@ -182,9 +205,16 @@ export default function TeamPlayerRow({
           opponentDataSum / leagueDataSum -
           1
         ).toFixed(5);
+
+        console.log(
+          "setCalculatedMatchUpValue",
+          (opponentDataSum / leagueDataSum - 1).toFixed(5).toString()
+        );
+        console.log("justcalculatedMatchupValue", justcalculatedMatchupValue);
       } else {
         setCalculatedMatchUpValue("-");
         justcalculatedMatchupValue = 0;
+        console.log("herrrrrr");
       }
 
       const matchupValueToUse = matchUpValue
