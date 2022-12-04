@@ -10,25 +10,27 @@ import {
   TableHead,
   TableRow,
   TableCell,
-  TableBody,
-} from "@mui/material";
-import PositionRow from "components/PositionRow";
-import React, { useEffect, useState } from "react";
-import teamsString from "../scrapedData/teams.json";
+  TableBody
+} from '@mui/material';
+import PositionRow from 'components/PositionRow';
+import React, { useEffect, useState } from 'react';
+import teamsString from '../scrapedData/teams.json';
 
-export default function DepthCharts() {
+export default function DepthCharts({ setOverallLoading }) {
   const [loading, setLoading] = useState(false);
   const [playersLoading, setPlayersLoading] = useState(false);
-  const [selectedTeam, setTeam] = useState("");
+  const [selectedTeam, setTeam] = useState('');
   const [teams, setTeams] = useState({});
   const [teamPlayers, setTeamPlayers] = useState({});
   const [sortedPlayers, setSortedPlayers] = useState({});
-  const tableHeadingStyle = { fontWeight: "600" };
-  const tableColumns = ["", "A", "B", "C", "A", "B", "C"];
+  const tableHeadingStyle = { fontWeight: '600' };
+  const tableColumns = ['', 'A', 'B', 'C', 'A', 'B', 'C'];
 
   useEffect(() => {
-    window.localStorage.getItem("selectedTeam") &&
-      setTeam(window.localStorage.getItem("selectedTeam"));
+    window.localStorage.getItem('selectedTeam') &&
+      setTeam(window.localStorage.getItem('selectedTeam'));
+
+    setOverallLoading(false);
   }, []);
 
   useEffect(() => {
@@ -56,28 +58,27 @@ export default function DepthCharts() {
     });
     setTeamPlayers(teamPlayersArr);
     setSortedPlayers(sortedPlayersList);
-    window.localStorage.setItem("selectedTeam", team);
+    window.localStorage.setItem('selectedTeam', team);
     setPlayersLoading(false);
   };
 
   return (
     <>
-      <header className="App-header">
+      <header className='App-header'>
         <h3>DepthCharts</h3>
       </header>
       {!loading && (
         <div>
-          <FormControl style={{ minWidth: "200px" }}>
-            <InputLabel id="demo-simple-select-label">Select team</InputLabel>
+          <FormControl style={{ minWidth: '200px' }}>
+            <InputLabel id='demo-simple-select-label'>Select team</InputLabel>
             <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
+              labelId='demo-simple-select-label'
+              id='demo-simple-select'
               value={selectedTeam}
-              label="Select team"
+              label='Select team'
               onChange={(e) => {
                 handleTeamSelect(e.target.value);
-              }}
-            >
+              }}>
               {Object.keys(teams).map((team, idx) => (
                 <MenuItem value={team} key={idx}>
                   {team}
@@ -90,9 +91,9 @@ export default function DepthCharts() {
 
       {selectedTeam && sortedPlayers && !loading && (
         <>
-          <Grid container spacing={2} className="statsTable depth">
+          <Grid container spacing={2} className='statsTable depth'>
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <Table sx={{ minWidth: 650 }} aria-label='simple table'>
                 <TableHead>
                   <TableRow>
                     {tableColumns.map((colHeading, idx) => (

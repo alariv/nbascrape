@@ -16,14 +16,19 @@ export function calculateUnitSize(
   //   unitSize:
   //     ((bookieOdds - 1) * totalOverP - (1 - totalOverP)) / (bookieOdds - 1)
   // };
-
+  console.log(
+    'calculateUnitSize input ',
+    bookieOdds,
+    totalOverP,
+    parseFloat(100 - totalOverP)
+  );
   const response = {
     unitSizeUnder: parseFloat(
       parseFloat(
         (
           ((parseFloat(bookieOdds.under) - 1) *
-            (parseFloat(totalUnderP) / 100) -
-            (1 - parseFloat(totalUnderP) / 100)) /
+            (parseFloat(100 - totalOverP) / 100) -
+            (1 - parseFloat(100 - totalOverP) / 100)) /
           (parseFloat(bookieOdds.under) - 1)
         ).toString()
       ) * 10
@@ -36,9 +41,9 @@ export function calculateUnitSize(
           (parseFloat(bookieOdds.over) - 1)
         ).toString()
       ) * 10
-    ).toFixed(4),
+    ).toFixed(4)
   };
-  console.log("calculateUnitSize response", JSON.stringify(response));
+  console.log('calculateUnitSize response', JSON.stringify(response));
 
   return response;
 }
