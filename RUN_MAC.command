@@ -8,7 +8,7 @@ npm install
 cd ..
 forever stopall
 forever start ./server.js
-open http://localhost:3001/
+open http://localhost/
 
 echo $( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/
 
