@@ -25,7 +25,7 @@ export default function PositionRow({ position, players, team }) {
       team
     ) {
       setValues(
-        teamDepthDataFromLS[team][position]
+        teamDepthDataFromLS[team] && teamDepthDataFromLS[team][position]
           ? teamDepthDataFromLS[team][position]
           : {
               a: { value: '', player: '' },
